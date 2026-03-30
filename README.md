@@ -18,10 +18,12 @@ A comprehensive astrology calculation library - **Vedic** and **Western** - powe
 - **House Systems** - Whole Sign, Equal, Placidus, Koch, and more
 
 ### Western Astrology (`WesternAstrologyCalculator`)
-- **Birth Chart** - Tropical chart with 12 planets (Sun–Pluto + Chiron + True Node)
+- **Birth Chart** - Tropical chart with 14 planets/points (Sun–Pluto + Chiron + North Node + South Node + Lilith)
+- **Angles** - Ascendant (Asc), Descendant (Dsc), Midheaven (MC), Imum Coeli (IC)
 - **Aspects** - All major and minor aspects with configurable orbs (conjunction, sextile, square, trine, opposition, quincunx, semi-sextile, semi-square, sesquiquadrate, quintile, biquintile)
 - **Chart Patterns** - Grand Trine, T-Square, Grand Cross, Stellium, Yod
 - **Western Dignities** - Domicile, Exalted, Detriment, Fall (including modern planet rulerships)
+- **Elements & Qualities** - Per-planet element (fire/earth/air/water) and quality (cardinal/fixed/mutable) with chart-level summary counts
 - **House Systems** - Placidus (default), Koch, Equal, and more
 
 ### Shared
@@ -119,8 +121,14 @@ const western = new WesternAstrologyCalculator({
 const chart = await western.calculateChart(birthInfo);
 
 console.log('Ascendant:', chart.ascendant.sign);
+console.log('Descendant:', chart.descendant.sign);
+console.log('MC:', chart.mc.sign);
+console.log('IC:', chart.ic.sign);
 console.log('Uranus sign:', chart.planets.uranus.sign);
-console.log('True Node:', chart.planets.true_node.sign);
+console.log('North Node:', chart.planets.north_node.sign);
+console.log('Lilith:', chart.planets.lilith.sign);
+console.log('Elements:', chart.elementCounts);
+console.log('Qualities:', chart.qualityCounts);
 console.log('Aspects:', chart.aspects.map(a => `${a.planet1} ${a.type} ${a.planet2}`));
 console.log('Patterns:', chart.patterns.map(p => p.description));
 
@@ -145,6 +153,22 @@ See [LICENSING.md](LICENSING.md) for detailed information.
 - ✅ Open source project? Use the free AGPL-3.0 license
 - ⚠️ Commercial/proprietary app? Get a Swiss Ephemeris professional license from [Astrodienst AG](https://www.astro.com/swisseph/), then use this library under LGPL-3.0
 - 💰 **No payment needed to this library** - only to Astrodienst AG for Swiss Ephemeris
+
+## Changelog
+
+### 1.0.1
+#### Western Astrology
+- Renamed `true_node` to `north_node` for clarity
+- Added `south_node` planet/point (derived as the exact opposite of the North Node)
+- Added `lilith` planet/point (Mean Black Moon Lilith, SE code 12)
+- Added `descendant`, `mc` (Midheaven), and `ic` (Imum Coeli) as top-level fields on `WesternChartCalculations`
+- Added `element` (`fire` | `earth` | `air` | `water`) and `quality` (`cardinal` | `fixed` | `mutable`) properties to every `WesternPlanetPosition`
+- Added `elementCounts` and `qualityCounts` summary objects to `WesternChartCalculations`
+
+### 1.0.0
+- Initial version
+
+---
 
 ## Credits
 

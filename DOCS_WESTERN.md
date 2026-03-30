@@ -69,7 +69,7 @@ const chart = await western.calculateChart(birthInfo);
 
 console.log('Ascendant:', chart.ascendant.sign, chart.ascendant.degreeDMSFormatted);
 console.log('Sun:', chart.planets.sun.sign, chart.planets.sun.degreeDMSFormatted);
-console.log('True Node:', chart.planets.true_node.sign);
+console.log('North Node:', chart.planets.north_node.sign);
 console.log('Aspects:', chart.aspects.map(a => `${a.planet1} ${a.type} ${a.planet2}`));
 console.log('Patterns:', chart.patterns.map(p => p.description));
 
@@ -100,7 +100,7 @@ const western = new WesternAstrologyCalculator(options?: WesternAstrologyCalcula
 
 ##### `calculateChart(birthInfo)` → `Promise<WesternChartCalculations>`
 
-Calculate a complete Western tropical birth chart with 12 planets (Sun–Pluto + Chiron + True Node), aspects, and chart patterns.
+Calculate a complete Western tropical birth chart with 14 planets/points (Sun–Pluto + Chiron + North Node + South Node + Lilith), aspects, and chart patterns.
 
 **Result:**
 
@@ -109,7 +109,12 @@ Calculate a complete Western tropical birth chart with 12 planets (Sun–Pluto +
   birthDateUtc: Date;
   planets: Record<WesternPlanet, WesternPlanetPosition>;
   houses: Record<HouseNumber, HouseInfo>;
-  ascendant: WesternAscendant;
+  ascendant: WesternAscendant;   // Asc
+  descendant: WesternAngle;      // Dsc (opposite Asc)
+  mc: WesternAngle;              // Midheaven
+  ic: WesternAngle;              // Imum Coeli (opposite MC)
+  elementCounts: { fire: number; earth: number; air: number; water: number };
+  qualityCounts: { cardinal: number; fixed: number; mutable: number };
   aspects: WesternAspect[];
   patterns: ChartPattern[];
 }
@@ -246,7 +251,7 @@ interface BirthInfo {
 type WesternPlanet =
   | 'sun' | 'moon' | 'mercury' | 'venus' | 'mars'
   | 'jupiter' | 'saturn' | 'uranus' | 'neptune' | 'pluto'
-  | 'chiron' | 'true_node';
+  | 'chiron' | 'north_node' | 'south_node' | 'lilith';
 ```
 
 ### WesternPlanetPosition
@@ -264,6 +269,8 @@ interface WesternPlanetPosition {
   isRetrograde: boolean;
   speed: number;              // degrees per day (negative = retrograde)
   dignity: 'Exalted' | 'Domicile' | 'Detriment' | 'Fall' | 'Neutral';
+  element: 'fire' | 'earth' | 'air' | 'water';
+  quality: 'cardinal' | 'fixed' | 'mutable';
   aspects: WesternAspect[];   // aspects this planet participates in
 }
 ```
@@ -311,6 +318,14 @@ interface WesternAscendant {
   degreeDMSFormatted: string;
   longitude: number;
 }
+```
+
+### WesternAngle
+
+Used for Descendant (Dsc), MC (Midheaven), and IC (Imum Coeli). Same shape as `WesternAscendant`.
+
+```typescript
+type WesternAngle = WesternAscendant;
 ```
 
 ### ZodiacSign
@@ -424,22 +439,65 @@ if (chart.patterns.length === 0) {
 western.dispose();
 ```
 
-### True Node
+### Angles (Asc / Dsc / MC / IC)
 
 ```typescript
 const western = new WesternAstrologyCalculator();
 const chart = await western.calculateChart(birthInfo);
 
-const node = chart.planets.true_node;
-console.log(`True Node: ${node.sign} ${node.degreeDMSFormatted}  H${node.house}`);
+// Ascendant (Asc) – the rising sign
+console.log(`Asc: ${chart.ascendant.sign} ${chart.ascendant.degreeDMSFormatted}`);
+
+// Descendant (Dsc) – exactly opposite the Ascendant
+console.log(`Dsc: ${chart.descendant.sign} ${chart.descendant.degreeDMSFormatted}`);
+
+// Midheaven (MC) – the highest point of the chart
+console.log(`MC:  ${chart.mc.sign} ${chart.mc.degreeDMSFormatted}`);
+
+// Imum Coeli (IC) – exactly opposite the MC
+console.log(`IC:  ${chart.ic.sign} ${chart.ic.degreeDMSFormatted}`);
+
+western.dispose();
+```
+
+### Elements & Qualities
+
+```typescript
+const western = new WesternAstrologyCalculator();
+const chart = await western.calculateChart(birthInfo);
+
+// Per-planet element and quality
+Object.entries(chart.planets).forEach(([name, planet]) => {
+  console.log(`${name.padEnd(12)} ${planet.sign.padEnd(12)} ${planet.element.padEnd(6)} ${planet.quality}`);
+});
+
+// Chart-level summary counts
+console.log('Elements:', chart.elementCounts);
+// e.g. { fire: 4, earth: 5, air: 3, water: 2 }
+
+console.log('Qualities:', chart.qualityCounts);
+// e.g. { cardinal: 7, fixed: 4, mutable: 3 }
+
+western.dispose();
+```
+
+const western = new WesternAstrologyCalculator();
+const chart = await western.calculateChart(birthInfo);
+
+const node = chart.planets.north_node;
+console.log(`North Node: ${node.sign} ${node.degreeDMSFormatted}  H${node.house}`);
 console.log(`Retrograde: ${node.isRetrograde}`);
 
-// Find aspects to the True Node
+// South Node is always exactly opposite (180°)
+const southNode = chart.planets.south_node;
+console.log(`South Node: ${southNode.sign} ${southNode.degreeDMSFormatted}  H${southNode.house}`);
+
+// Find aspects to the North Node
 const nodeAspects = chart.aspects.filter(
-  a => a.planet1 === 'true_node' || a.planet2 === 'true_node'
+  a => a.planet1 === 'north_node' || a.planet2 === 'north_node'
 );
 nodeAspects.forEach(a => {
-  const other = a.planet1 === 'true_node' ? a.planet2 : a.planet1;
+  const other = a.planet1 === 'north_node' ? a.planet2 : a.planet1;
   console.log(`  ${other} ${a.type}  orb ${a.orb.toFixed(2)}°`);
 });
 

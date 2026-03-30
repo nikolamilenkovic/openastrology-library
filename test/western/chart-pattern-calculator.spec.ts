@@ -3,6 +3,7 @@ import { WesternAspectCalculator } from '../../src/western-aspect-calculator';
 import { WesternPlanetPosition, WesternPlanet, WesternAspect } from '../../src/types/western.types';
 import { DegreeDMS } from '../../src/types/common.types';
 import { ZodiacSign } from '../../src/types/common.types';
+import { ZodiacUtils } from '../../src/astrological-utils';
 
 function makePlanet(
     name: WesternPlanet,
@@ -22,6 +23,8 @@ function makePlanet(
         isRetrograde: speed < 0,
         speed,
         dignity: 'Neutral',
+        element: ZodiacUtils.getElement(sign),
+        quality: ZodiacUtils.getQuality(sign),
         aspects: []
     };
 }

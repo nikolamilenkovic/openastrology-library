@@ -1,13 +1,15 @@
 import { WesternAspectCalculator } from '../../src/western-aspect-calculator';
 import { WesternPlanetPosition, WesternPlanet } from '../../src/types/western.types';
 import { DegreeDMS } from '../../src/types/common.types';
+import { ZodiacUtils } from '../../src/astrological-utils';
 
 function makePlanet(name: WesternPlanet, longitude: number, speed = 1): WesternPlanetPosition {
+    const sign = ZodiacUtils.getSignFromLongitude(longitude);
     return {
         name,
         longitude,
         latitude: 0,
-        sign: 'aries',
+        sign,
         degree: longitude % 30,
         degreeDMS: new DegreeDMS(),
         degreeDMSFormatted: '',
@@ -15,6 +17,8 @@ function makePlanet(name: WesternPlanet, longitude: number, speed = 1): WesternP
         isRetrograde: speed < 0,
         speed,
         dignity: 'Neutral',
+        element: ZodiacUtils.getElement(sign),
+        quality: ZodiacUtils.getQuality(sign),
         aspects: []
     };
 }

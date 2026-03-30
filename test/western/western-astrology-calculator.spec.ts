@@ -87,7 +87,7 @@ describe('WesternAstrologyCalculator', () => {
     });
 
     describe('calculateChart', () => {
-        it('returns a chart with all 11 Western planets', async () => {
+        it('returns a chart with all 14 Western planets/points', async () => {
             const chart = await calculator.calculateChart(birthInfo);
             const planetNames = Object.keys(chart.planets);
             expect(planetNames).toContain('sun');
@@ -96,8 +96,10 @@ describe('WesternAstrologyCalculator', () => {
             expect(planetNames).toContain('neptune');
             expect(planetNames).toContain('pluto');
             expect(planetNames).toContain('chiron');
-            expect(planetNames).toContain('true_node');
-            expect(planetNames).toHaveLength(12);
+            expect(planetNames).toContain('north_node');
+            expect(planetNames).toContain('south_node');
+            expect(planetNames).toContain('lilith');
+            expect(planetNames).toHaveLength(14);
         });
 
         it('does not include rahu or ketu', async () => {

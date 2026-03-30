@@ -13,7 +13,8 @@ export class WesternAstrologyCalculator {
     private readonly customOrbs?: Partial<Record<WesternAspectType, number>>;
 
     // Swiss Ephemeris codes for Western planets (tropical)
-    private static readonly PLANET_MAPPING: Record<WesternPlanet, number> = {
+    // south_node is derived from north_node and not fetched from SE directly
+    private static readonly PLANET_MAPPING: Record<Exclude<WesternPlanet, 'south_node'>, number> = {
         sun: 0, // SE_SUN
         moon: 1, // SE_MOON
         mercury: 2, // SE_MERCURY
@@ -25,7 +26,8 @@ export class WesternAstrologyCalculator {
         neptune: 8, // SE_NEPTUNE
         pluto: 9, // SE_PLUTO
         chiron: 15,    // SE_CHIRON
-        true_node: 11  // SE_TRUE_NODE
+        north_node: 11, // SE_TRUE_NODE (North Node)
+        lilith: 12      // SE_MEAN_APOG (Mean Black Moon Lilith)
     };
 
     private static readonly HOUSE_SYSTEM_MAPPING: Record<string, string> = {
@@ -115,18 +117,30 @@ export class WesternAstrologyCalculator {
             // swisseph stays in tropical (default) mode
 
             const planets = await this.calculatePlanetaryPositions(julianDay);
-            const { houses, ascendant } = await this.calculateHouses(julianDay, birthInfo.latitude, birthInfo.longitude);
+            const { houses, ascendant, descendant, mc, ic } = await this.calculateHouses(julianDay, birthInfo.latitude, birthInfo.longitude);
 
             this.assignPlanetsToHouses(planets, houses);
 
             const aspects = WesternAspectCalculator.calculateAspects(planets, this.customOrbs);
             const patterns = ChartPatternCalculator.detectPatterns(planets, aspects);
 
+            const elementCounts: Record<'fire' | 'earth' | 'air' | 'water', number> = { fire: 0, earth: 0, air: 0, water: 0 };
+            const qualityCounts: Record<'cardinal' | 'fixed' | 'mutable', number> = { cardinal: 0, fixed: 0, mutable: 0 };
+            for (const planet of Object.values(planets)) {
+                elementCounts[planet.element]++;
+                qualityCounts[planet.quality]++;
+            }
+
             return {
                 birthDateUtc,
                 planets,
                 houses,
                 ascendant,
+                descendant,
+                mc,
+                ic,
+                elementCounts,
+                qualityCounts,
                 aspects,
                 patterns
             };
@@ -243,6 +257,8 @@ export class WesternAstrologyCalculator {
                     isRetrograde: speed < 0,
                     speed,
                     dignity: this.calculateDignity(planetName, sign),
+                    element: ZodiacUtils.getElement(sign),
+                    quality: ZodiacUtils.getQuality(sign),
                     aspects: []
                 };
             } catch (error: any) {
@@ -250,10 +266,33 @@ export class WesternAstrologyCalculator {
             }
         }
 
+        // Derive South Node from North Node (exactly 180° opposite on the ecliptic)
+        const northNode = planets['north_node'];
+        const southNodeLongitude = (northNode.longitude + 180) % 360;
+        const southNodeSign = ZodiacUtils.getSignFromLongitude(southNodeLongitude);
+        const southNodeDegree = ZodiacUtils.getDegreeInSign(southNodeLongitude);
+        const southNodeDegreeDMS = FormattingUtils.convertToDMS(southNodeDegree);
+        planets['south_node'] = {
+            name: 'south_node',
+            longitude: southNodeLongitude,
+            latitude: 0,
+            sign: southNodeSign,
+            degree: southNodeDegree,
+            degreeDMS: southNodeDegreeDMS,
+            degreeDMSFormatted: FormattingUtils.formatDMS(southNodeDegreeDMS.degrees, southNodeDegreeDMS.minutes, southNodeDegreeDMS.seconds),
+            house: 1, // assigned later in assignPlanetsToHouses
+            isRetrograde: northNode.isRetrograde,
+            speed: northNode.speed,
+            dignity: this.calculateDignity('south_node', southNodeSign),
+            element: ZodiacUtils.getElement(southNodeSign),
+            quality: ZodiacUtils.getQuality(southNodeSign),
+            aspects: []
+        };
+
         return planets;
     }
 
-    private async calculateHouses(julianDay: number, latitude: number, longitude: number): Promise<{ houses: Record<HouseNumber, HouseInfo>; ascendant: any }> {
+    private async calculateHouses(julianDay: number, latitude: number, longitude: number): Promise<{ houses: Record<HouseNumber, HouseInfo>; ascendant: any; descendant: any; mc: any; ic: any }> {
         const hsysCode = WesternAstrologyCalculator.HOUSE_SYSTEM_MAPPING[this.houseSystem] || 'P';
         const result = swisseph.swe_houses(julianDay, latitude, longitude, hsysCode) as any;
 
@@ -270,6 +309,42 @@ export class WesternAstrologyCalculator {
             degree: ascendantDegree,
             degreeDMSFormatted: FormattingUtils.formatDMS(ascendantDegreeDMS.degrees, ascendantDegreeDMS.minutes, ascendantDegreeDMS.seconds),
             longitude: ascendantLongitude
+        };
+
+        // Descendant: exactly opposite the Ascendant
+        const descendantLongitude = (ascendantLongitude + 180) % 360;
+        const descendantSign = ZodiacUtils.getSignFromLongitude(descendantLongitude);
+        const descendantDegree = ZodiacUtils.getDegreeInSign(descendantLongitude);
+        const descendantDegreeDMS = FormattingUtils.convertToDMS(descendantDegree);
+        const descendant = {
+            sign: descendantSign,
+            degree: descendantDegree,
+            degreeDMSFormatted: FormattingUtils.formatDMS(descendantDegreeDMS.degrees, descendantDegreeDMS.minutes, descendantDegreeDMS.seconds),
+            longitude: descendantLongitude
+        };
+
+        // MC (Midheaven): returned directly by Swiss Ephemeris
+        const mcLongitude = result.mc % 360;
+        const mcSign = ZodiacUtils.getSignFromLongitude(mcLongitude);
+        const mcDegree = ZodiacUtils.getDegreeInSign(mcLongitude);
+        const mcDegreeDMS = FormattingUtils.convertToDMS(mcDegree);
+        const mc = {
+            sign: mcSign,
+            degree: mcDegree,
+            degreeDMSFormatted: FormattingUtils.formatDMS(mcDegreeDMS.degrees, mcDegreeDMS.minutes, mcDegreeDMS.seconds),
+            longitude: mcLongitude
+        };
+
+        // IC (Imum Coeli): exactly opposite the MC
+        const icLongitude = (mcLongitude + 180) % 360;
+        const icSign = ZodiacUtils.getSignFromLongitude(icLongitude);
+        const icDegree = ZodiacUtils.getDegreeInSign(icLongitude);
+        const icDegreeDMS = FormattingUtils.convertToDMS(icDegree);
+        const ic = {
+            sign: icSign,
+            degree: icDegree,
+            degreeDMSFormatted: FormattingUtils.formatDMS(icDegreeDMS.degrees, icDegreeDMS.minutes, icDegreeDMS.seconds),
+            longitude: icLongitude
         };
 
         const houses: Record<HouseNumber, HouseInfo> = {} as any;
@@ -291,7 +366,7 @@ export class WesternAstrologyCalculator {
             };
         }
 
-        return { houses, ascendant };
+        return { houses, ascendant, descendant, mc, ic };
     }
 
     private assignPlanetsToHouses(planets: Record<WesternPlanet, WesternPlanetPosition>, houses: Record<HouseNumber, HouseInfo>): void {

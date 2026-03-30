@@ -17,7 +17,9 @@ export type WesternPlanet =
     | 'neptune'
     | 'pluto'
     | 'chiron'
-    | 'true_node';
+    | 'north_node'
+    | 'south_node'
+    | 'lilith';
 
 // All Western aspect types (major + minor)
 export type WesternAspectType =
@@ -103,6 +105,8 @@ export interface WesternPlanetPosition {
     isRetrograde: boolean;
     speed: number;              // degrees per day
     dignity: string;            // Exalted | Debilitated | Domicile | Detriment | Neutral
+    element: 'fire' | 'earth' | 'air' | 'water';
+    quality: 'cardinal' | 'fixed' | 'mutable';
     aspects: WesternAspect[];
 }
 
@@ -118,12 +122,20 @@ export interface WesternAscendant {
     longitude: number;
 }
 
+// Generic angular point (Dsc, MC, IC share the same shape as WesternAscendant)
+export type WesternAngle = WesternAscendant;
+
 // Complete Western birth chart result
 export interface WesternChartCalculations {
     birthDateUtc: Date;
     planets: WesternPlanetaryPositions;
     houses: HousePositions;
     ascendant: WesternAscendant;
+    descendant: WesternAngle;
+    mc: WesternAngle;
+    ic: WesternAngle;
+    elementCounts: Record<'fire' | 'earth' | 'air' | 'water', number>;
+    qualityCounts: Record<'cardinal' | 'fixed' | 'mutable', number>;
     aspects: WesternAspect[];
     patterns: ChartPattern[];
 }

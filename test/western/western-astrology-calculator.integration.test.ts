@@ -43,6 +43,21 @@ const EXPECTED = {
         degree:    '05:30:00',
         longitude: si.leo * 30 + dms2deg('05:30:00')
     },
+    descendant: {
+        sign:      'aquarius',
+        degree:    '05:30:00',
+        longitude: si.aquarius * 30 + dms2deg('05:30:00')
+    },
+    mc: {
+        sign:      'aries',
+        degree:    '20:05:14',
+        longitude: si.aries * 30 + dms2deg('20:05:14')
+    },
+    ic: {
+        sign:      'libra',
+        degree:    '20:05:14',
+        longitude: si.libra * 30 + dms2deg('20:05:14')
+    },
 
     planets: {
         sun: {
@@ -85,13 +100,21 @@ const EXPECTED = {
             sign:         'sagittarius',   degree: '04:24:36',  longitude: si.sagittarius * 30 + dms2deg('04:24:36'),
             house:        5,  isRetrograde: false,  dignity: 'Neutral'
         } as PlanetExpected,
-        true_node: {
+        north_node: {
             sign:         'libra',   degree: '02:26:17',  longitude: si.libra * 30 + dms2deg('02:26:17'),
             house:        3,  isRetrograde: false,   dignity: 'Neutral'
+        } as PlanetExpected,
+        south_node: {
+            sign:         'aries',   degree: '02:26:17',  longitude: si.aries * 30 + dms2deg('02:26:17'),
+            house:        9,  isRetrograde: false,   dignity: 'Neutral'
         } as PlanetExpected,
         chiron: {
             sign:         'scorpio',   degree: '00:16:14',  longitude: si.scorpio * 30 + dms2deg('00:16:14'),
             house:        4,  isRetrograde: false,  dignity: 'Neutral'
+        } as PlanetExpected,
+        lilith: {
+            sign:         'leo',   degree: '21:30:19',  longitude: si.leo * 30 + dms2deg('21:30:19'),
+            house:        1,  isRetrograde: false,  dignity: 'Neutral'
         } as PlanetExpected
     },
     houses: {
@@ -110,15 +133,15 @@ const EXPECTED = {
     } as Record<HouseNumber, { cusp: number; sign: ZodiacSign }>,
 
     housePlanets: {
-        1:  [],
+        1:  ['lilith'],
         2:  [],
-        3:  ['mars', 'true_node', 'moon'],
+        3:  ['mars', 'north_node', 'moon'],
         4:  ['chiron'],
         5:  ['pluto', 'venus'],
         6:  ['sun', 'mercury', 'jupiter', 'neptune', 'uranus'],
         7:  [],
         8:  [],
-        9:  ['saturn'],
+        9:  ['saturn', 'south_node'],
         10: [],
         11: [],
         12: []
@@ -128,8 +151,8 @@ const EXPECTED = {
         // Conjunctions
         { planet1: 'sun',       planet2: 'mercury',   type: 'conjunction' as WesternAspectType }, // 0°49'
         { planet1: 'moon',      planet2: 'mars',       type: 'conjunction' as WesternAspectType }, // 7°50'
-        { planet1: 'moon',      planet2: 'true_node',  type: 'conjunction' as WesternAspectType }, // 4°52'
-        { planet1: 'mars',      planet2: 'true_node',  type: 'conjunction' as WesternAspectType }, // 2°58'
+        { planet1: 'moon',      planet2: 'north_node',  type: 'conjunction' as WesternAspectType }, // 4°52'
+        { planet1: 'mars',      planet2: 'north_node',  type: 'conjunction' as WesternAspectType }, // 2°58'
         { planet1: 'jupiter',   planet2: 'neptune',    type: 'conjunction' as WesternAspectType }, // 1°31'
         { planet1: 'jupiter',   planet2: 'uranus',     type: 'conjunction' as WesternAspectType }, // 7°58'
         { planet1: 'uranus',    planet2: 'neptune',    type: 'conjunction' as WesternAspectType }, // 6°27'
@@ -145,20 +168,20 @@ const EXPECTED = {
         { planet1: 'mars',      planet2: 'uranus',     type: 'trine' as WesternAspectType },       // 3°50'
         { planet1: 'mars',      planet2: 'neptune',    type: 'trine' as WesternAspectType },       // 2°37'
         { planet1: 'saturn',    planet2: 'pluto',      type: 'trine' as WesternAspectType },       // 3°02'
-        { planet1: 'jupiter',   planet2: 'true_node',  type: 'trine' as WesternAspectType },       // 7°06'
-        { planet1: 'uranus',    planet2: 'true_node',  type: 'trine' as WesternAspectType },       // 0°52'
-        { planet1: 'neptune',   planet2: 'true_node',  type: 'trine' as WesternAspectType },       // 5°35'
+        { planet1: 'jupiter',   planet2: 'north_node',  type: 'trine' as WesternAspectType },       // 7°06'
+        { planet1: 'uranus',    planet2: 'north_node',  type: 'trine' as WesternAspectType },       // 0°52'
+        { planet1: 'neptune',   planet2: 'north_node',  type: 'trine' as WesternAspectType },       // 5°35'
         // Sextiles
         { planet1: 'moon',      planet2: 'pluto',      type: 'sextile' as WesternAspectType },     // 2°54'
         { planet1: 'mars',      planet2: 'pluto',      type: 'sextile' as WesternAspectType },     // 4°56'
         { planet1: 'uranus',    planet2: 'pluto',      type: 'sextile' as WesternAspectType },     // 1°06'
         { planet1: 'saturn',    planet2: 'uranus',     type: 'sextile' as WesternAspectType },     // 1°56'
         { planet1: 'saturn',    planet2: 'neptune',    type: 'sextile' as WesternAspectType },     // 4°31'
-        { planet1: 'pluto',     planet2: 'true_node',  type: 'sextile' as WesternAspectType },     // 1°58'
+        { planet1: 'pluto',     planet2: 'north_node',  type: 'sextile' as WesternAspectType },     // 1°58'
         // Oppositions
         { planet1: 'moon',      planet2: 'saturn',     type: 'opposition' as WesternAspectType },  // 5°56'
         { planet1: 'mars',      planet2: 'saturn',     type: 'opposition' as WesternAspectType },  // 1°54'
-        { planet1: 'saturn',    planet2: 'true_node',  type: 'opposition' as WesternAspectType },  // 1°06'
+        { planet1: 'saturn',    planet2: 'north_node',  type: 'opposition' as WesternAspectType },  // 1°06'
         // Minor aspects
         { planet1: 'moon',      planet2: 'venus',      type: 'quintile' as WesternAspectType },    // 0°02' – extremely tight
         { planet1: 'mercury',   planet2: 'chiron',     type: 'quintile' as WesternAspectType },    // 0°07'
@@ -211,8 +234,86 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
         });
     });
 
+    describe('Descendant (Dsc)', () => {
+        it('should be exactly opposite the Ascendant (180° apart)', () => {
+            const diff = Math.abs(result.descendant.longitude - result.ascendant.longitude);
+            const normalised = diff > 180 ? 360 - diff : diff;
+            expect(normalised).toBeWithinEpsilon(180, 0.01);
+        });
+
+        it('should have the correct sign', () => {
+            expect(result.descendant.sign).toBe(EXPECTED.descendant.sign);
+        });
+
+        it('should have the correct degree (within 0.1°)', () => {
+            expect(result.descendant.degree).toBeWithinEpsilon(dms2deg(EXPECTED.descendant.degree), 0.1);
+        });
+
+        it('should have the correct absolute longitude (within 0.1°)', () => {
+            expect(result.descendant.longitude).toBeWithinEpsilon(EXPECTED.descendant.longitude, 0.1);
+        });
+
+        it('should have a formatted DMS string matching "DD:MM:SS" pattern', () => {
+            expect(result.descendant.degreeDMSFormatted).toMatch(/^\d{2}:\d{2}:\d{2}$/);
+        });
+
+        it('longitude should match house 7 cusp', () => {
+            expect(result.descendant.longitude).toBeWithinEpsilon(result.houses[7].cusp, 0.01);
+        });
+    });
+
+    describe('MC (Midheaven)', () => {
+        it('should have the correct sign', () => {
+            expect(result.mc.sign).toBe(EXPECTED.mc.sign);
+        });
+
+        it('should have the correct degree (within 0.1°)', () => {
+            expect(result.mc.degree).toBeWithinEpsilon(dms2deg(EXPECTED.mc.degree), 0.1);
+        });
+
+        it('should have the correct absolute longitude (within 0.1°)', () => {
+            expect(result.mc.longitude).toBeWithinEpsilon(EXPECTED.mc.longitude, 0.1);
+        });
+
+        it('should have a formatted DMS string matching "DD:MM:SS" pattern', () => {
+            expect(result.mc.degreeDMSFormatted).toMatch(/^\d{2}:\d{2}:\d{2}$/);
+        });
+
+        it('longitude should match house 10 cusp', () => {
+            expect(result.mc.longitude).toBeWithinEpsilon(result.houses[10].cusp, 0.1);
+        });
+    });
+
+    describe('IC (Imum Coeli)', () => {
+        it('should be exactly opposite the MC (180° apart)', () => {
+            const diff = Math.abs(result.ic.longitude - result.mc.longitude);
+            const normalised = diff > 180 ? 360 - diff : diff;
+            expect(normalised).toBeWithinEpsilon(180, 0.01);
+        });
+
+        it('should have the correct sign', () => {
+            expect(result.ic.sign).toBe(EXPECTED.ic.sign);
+        });
+
+        it('should have the correct degree (within 0.1°)', () => {
+            expect(result.ic.degree).toBeWithinEpsilon(dms2deg(EXPECTED.ic.degree), 0.1);
+        });
+
+        it('should have the correct absolute longitude (within 0.1°)', () => {
+            expect(result.ic.longitude).toBeWithinEpsilon(EXPECTED.ic.longitude, 0.1);
+        });
+
+        it('should have a formatted DMS string matching "DD:MM:SS" pattern', () => {
+            expect(result.ic.degreeDMSFormatted).toMatch(/^\d{2}:\d{2}:\d{2}$/);
+        });
+
+        it('longitude should match house 4 cusp', () => {
+            expect(result.ic.longitude).toBeWithinEpsilon(result.houses[4].cusp, 0.1);
+        });
+    });
+
     describe('Planet Signs', () => {
-        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
 
         it.each(planets)('%s should be in the correct sign', (planet) => {
             expect(result.planets[planet].sign).toBe(EXPECTED.planets[planet].sign);
@@ -220,7 +321,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
     });
 
     describe('Planet Degrees (degree within sign)', () => {
-        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
 
         it.each(planets)('%s degree should be within 0.1° of expected', (planet) => {
             expect(result.planets[planet].degree).toBeWithinEpsilon(dms2deg(EXPECTED.planets[planet].degree), 0.1);
@@ -228,7 +329,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
     });
 
     describe('Planet Absolute Longitudes (0 - 360°)', () => {
-        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
 
         it.each(planets)('%s longitude should be within 0.1° of expected', (planet) => {
             expect(result.planets[planet].longitude).toBeWithinEpsilon(EXPECTED.planets[planet].longitude, 0.1);
@@ -236,7 +337,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
     });
 
     describe('Planet degreeDMSFormatted', () => {
-        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
 
         it.each(planets)('%s degreeDMSFormatted should match "DD:MM:SS"', (planet) => {
             expect(result.planets[planet].degreeDMSFormatted).toMatch(/^\d{2}:\d{2}:\d{2}$/);
@@ -277,13 +378,13 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
         it('chiron retrograde status', () => {
             expect(result.planets.chiron.isRetrograde).toBe(EXPECTED.planets.chiron.isRetrograde);
         });
-        it('true_node retrograde status', () => {
-            expect(result.planets.true_node.isRetrograde).toBe(EXPECTED.planets.true_node.isRetrograde);
+        it('north_node retrograde status', () => {
+            expect(result.planets.north_node.isRetrograde).toBe(EXPECTED.planets.north_node.isRetrograde);
         });
     });
 
     describe('Planet Dignity', () => {
-        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
 
         it.each(planets)('%s should have correct dignity', (planet) => {
             expect(result.planets[planet].dignity).toBe(EXPECTED.planets[planet].dignity);
@@ -298,7 +399,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
     });
 
     describe('Planet House Assignments', () => {
-        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
 
         it.each(planets)('%s should be in the correct house', (planet) => {
             expect(result.planets[planet].house).toBe(EXPECTED.planets[planet].house);
@@ -320,7 +421,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
             expect(result.planets.moon.speed).toBeGreaterThan(0);
         });
         it('retrograde planets should have negative speed', () => {
-            ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'].forEach((p) => {
+            ['mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'].forEach((p) => {
                 const planet = result.planets[p as keyof typeof result.planets];
                 if (planet.isRetrograde) {
                     expect(planet.speed).toBeLessThan(0);
@@ -395,9 +496,9 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
     describe('Planets in Houses', () => {
         const houseNums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as HouseNumber[];
 
-        it('all 11 planets should be distributed across houses (no planet missing)', () => {
+        it('all planets should be distributed across houses (no planet missing)', () => {
             const allAssigned = houseNums.flatMap(h => result.houses[h].planets);
-            expect(allAssigned.length).toBe(12);
+            expect(allAssigned.length).toBe(14);
         });
 
         it.each(houseNums)('house %i should contain the expected planets', (h) => {
@@ -407,7 +508,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
         });
 
         it('the house in planet.house should match the house listing', () => {
-            const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+            const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
             planets.forEach(planet => {
                 const assignedHouse = result.planets[planet].house;
                 expect(result.houses[assignedHouse].planets).toContain(planet);
@@ -503,7 +604,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
             'aries', 'taurus', 'gemini', 'cancer', 'leo', 'virgo',
             'libra', 'scorpio', 'sagittarius', 'capricorn', 'aquarius', 'pisces'
         ];
-        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'true_node'] as const;
+        const planets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
 
         it('all planets should have a valid zodiac sign', () => {
             planets.forEach(planet => {
@@ -546,11 +647,16 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
             expect(result).toHaveProperty('planets');
             expect(result).toHaveProperty('houses');
             expect(result).toHaveProperty('ascendant');
+            expect(result).toHaveProperty('descendant');
+            expect(result).toHaveProperty('mc');
+            expect(result).toHaveProperty('ic');
+            expect(result).toHaveProperty('elementCounts');
+            expect(result).toHaveProperty('qualityCounts');
             expect(result).toHaveProperty('aspects');
             expect(result).toHaveProperty('patterns');
         });
 
-        it('result.planets should contain all 12 western planets', () => {
+        it('result.planets should contain all 14 western planets/points', () => {
             planets.forEach(planet => {
                 expect(result.planets).toHaveProperty(planet);
             });
@@ -560,6 +666,86 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
             ([1,2,3,4,5,6,7,8,9,10,11,12] as HouseNumber[]).forEach(h => {
                 expect(result.houses).toHaveProperty(String(h));
             });
+        });
+    });
+
+    describe('Elements', () => {
+        const validElements = ['fire', 'earth', 'air', 'water'];
+        const allPlanets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
+
+        it('every planet should have a valid element', () => {
+            allPlanets.forEach(planet => {
+                expect(validElements).toContain(result.planets[planet].element);
+            });
+        });
+
+        it('element should match the planet sign', () => {
+            const signElements: Record<string, string> = {
+                aries: 'fire', leo: 'fire', sagittarius: 'fire',
+                taurus: 'earth', virgo: 'earth', capricorn: 'earth',
+                gemini: 'air', libra: 'air', aquarius: 'air',
+                cancer: 'water', scorpio: 'water', pisces: 'water'
+            };
+            allPlanets.forEach(planet => {
+                expect(result.planets[planet].element).toBe(signElements[result.planets[planet].sign]);
+            });
+        });
+
+        it('elementCounts keys should be fire/earth/air/water', () => {
+            expect(result.elementCounts).toHaveProperty('fire');
+            expect(result.elementCounts).toHaveProperty('earth');
+            expect(result.elementCounts).toHaveProperty('air');
+            expect(result.elementCounts).toHaveProperty('water');
+        });
+
+        it('elementCounts should sum to 14 (all planets/points)', () => {
+            const total = result.elementCounts.fire + result.elementCounts.earth + result.elementCounts.air + result.elementCounts.water;
+            expect(total).toBe(14);
+        });
+
+        it('elementCounts should match per-planet element values', () => {
+            const expected = { fire: 0, earth: 0, air: 0, water: 0 };
+            allPlanets.forEach(p => { expected[result.planets[p].element]++; });
+            expect(result.elementCounts).toEqual(expected);
+        });
+    });
+
+    describe('Qualities', () => {
+        const validQualities = ['cardinal', 'fixed', 'mutable'];
+        const allPlanets = ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'chiron', 'north_node', 'south_node', 'lilith'] as const;
+
+        it('every planet should have a valid quality', () => {
+            allPlanets.forEach(planet => {
+                expect(validQualities).toContain(result.planets[planet].quality);
+            });
+        });
+
+        it('quality should match the planet sign', () => {
+            const signQualities: Record<string, string> = {
+                aries: 'cardinal', cancer: 'cardinal', libra: 'cardinal', capricorn: 'cardinal',
+                taurus: 'fixed', leo: 'fixed', scorpio: 'fixed', aquarius: 'fixed',
+                gemini: 'mutable', virgo: 'mutable', sagittarius: 'mutable', pisces: 'mutable'
+            };
+            allPlanets.forEach(planet => {
+                expect(result.planets[planet].quality).toBe(signQualities[result.planets[planet].sign]);
+            });
+        });
+
+        it('qualityCounts keys should be cardinal/fixed/mutable', () => {
+            expect(result.qualityCounts).toHaveProperty('cardinal');
+            expect(result.qualityCounts).toHaveProperty('fixed');
+            expect(result.qualityCounts).toHaveProperty('mutable');
+        });
+
+        it('qualityCounts should sum to 14 (all planets/points)', () => {
+            const total = result.qualityCounts.cardinal + result.qualityCounts.fixed + result.qualityCounts.mutable;
+            expect(total).toBe(14);
+        });
+
+        it('qualityCounts should match per-planet quality values', () => {
+            const expected = { cardinal: 0, fixed: 0, mutable: 0 };
+            allPlanets.forEach(p => { expected[result.planets[p].quality]++; });
+            expect(result.qualityCounts).toEqual(expected);
         });
     });
 
