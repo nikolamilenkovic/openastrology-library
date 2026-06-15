@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import * as swisseph from 'swisseph';
+import { set_ephe_path, julday, calc, houses as calcHouses, close, constants } from 'sweph';
 import { ChartPatternCalculator } from './chart-pattern-calculator';
 import { WesternAspectCalculator } from './western-aspect-calculator';
 import { ZodiacSign, HouseNumber, HouseInfo } from './types/common.types';
@@ -97,7 +97,7 @@ export class WesternAstrologyCalculator {
 
     constructor(options: WesternAstrologyCalculatorOptions = {}) {
         const ephePath = options.ephePath ?? (__dirname + '/ephe');
-        swisseph.swe_set_ephe_path(ephePath);
+        set_ephe_path(ephePath);
         this.houseSystem = options.houseSystem?.toLowerCase() || 'placidus';
         this.customOrbs = options.orbs;
     }
@@ -178,7 +178,7 @@ export class WesternAstrologyCalculator {
      * Release Swiss Ephemeris resources.
      */
     dispose(): void {
-        swisseph.swe_close();
+        close();
     }
 
     // ─── Private helpers ────────────────────────────────────────────────────────
@@ -223,7 +223,7 @@ export class WesternAstrologyCalculator {
 
         const dtUtc = dt.toUTC();
         const timeDecimal = dtUtc.hour + dtUtc.minute / 60 + dtUtc.second / 3600;
-        const julianDay = swisseph.swe_julday(dtUtc.year, dtUtc.month, dtUtc.day, timeDecimal, swisseph.SE_GREG_CAL);
+        const julianDay = julday(dtUtc.year, dtUtc.month, dtUtc.day, timeDecimal, constants.SE_GREG_CAL);
 
         return { julianDay, birthDateUtc: dtUtc.toJSDate() };
     }
@@ -234,12 +234,12 @@ export class WesternAstrologyCalculator {
         for (const [planetName, planetId] of Object.entries(WesternAstrologyCalculator.PLANET_MAPPING) as [WesternPlanet, number][]) {
             try {
                 // Tropical mode: SEFLG_SPEED only (no SEFLG_SIDEREAL)
-                const result = swisseph.swe_calc(julianDay, planetId, swisseph.SEFLG_SPEED) as any;
-                if (result.rflag < 0 || result.error) throw new Error(`Failed to calculate ${planetName} position: ${result.error ?? 'rflag=' + result.rflag}`);
+                const result = calc(julianDay, planetId, constants.SEFLG_SPEED);
+                if (result.flag < 0 || result.error) throw new Error(`Failed to calculate ${planetName} position: ${result.error ?? 'flag=' + result.flag}`);
 
-                const longitude = result.longitude || 0;
-                const latitude = result.latitude || 0;
-                const speed = result.longitudeSpeed || 0;
+                const longitude = result.data[0] || 0;
+                const latitude = result.data[1] || 0;
+                const speed = result.data[3] || 0;
 
                 const sign = ZodiacUtils.getSignFromLongitude(longitude);
                 const degree = ZodiacUtils.getDegreeInSign(longitude);
@@ -294,12 +294,12 @@ export class WesternAstrologyCalculator {
 
     private async calculateHouses(julianDay: number, latitude: number, longitude: number): Promise<{ houses: Record<HouseNumber, HouseInfo>; ascendant: any; descendant: any; mc: any; ic: any }> {
         const hsysCode = WesternAstrologyCalculator.HOUSE_SYSTEM_MAPPING[this.houseSystem] || 'P';
-        const result = swisseph.swe_houses(julianDay, latitude, longitude, hsysCode) as any;
+        const result = calcHouses(julianDay, latitude, longitude, hsysCode);
 
-        if (!result || !result.house) throw new Error('Failed to calculate houses: Invalid result from Swiss Ephemeris');
+        if (!result || !result.data?.houses) throw new Error('Failed to calculate houses: Invalid result from Swiss Ephemeris');
 
         // Western: use tropical ascendant directly (no ayanamsa subtraction)
-        const ascendantLongitude = result.ascendant % 360;
+        const ascendantLongitude = result.data.points[0] % 360;
         const ascendantSign = ZodiacUtils.getSignFromLongitude(ascendantLongitude);
         const ascendantDegree = ZodiacUtils.getDegreeInSign(ascendantLongitude);
         const ascendantDegreeDMS = FormattingUtils.convertToDMS(ascendantDegree);
@@ -324,7 +324,7 @@ export class WesternAstrologyCalculator {
         };
 
         // MC (Midheaven): returned directly by Swiss Ephemeris
-        const mcLongitude = result.mc % 360;
+        const mcLongitude = result.data.points[1] % 360;
         const mcSign = ZodiacUtils.getSignFromLongitude(mcLongitude);
         const mcDegree = ZodiacUtils.getDegreeInSign(mcLongitude);
         const mcDegreeDMS = FormattingUtils.convertToDMS(mcDegree);
@@ -351,7 +351,7 @@ export class WesternAstrologyCalculator {
 
         for (let i = 0; i < 12; i++) {
             const houseNum = (i + 1) as HouseNumber;
-            const cusp = result.house[i] % 360;
+            const cusp = result.data.houses[i] % 360;
             const sign = ZodiacUtils.getSignFromLongitude(cusp);
             const lord = ZodiacUtils.getSignLord(sign);
 

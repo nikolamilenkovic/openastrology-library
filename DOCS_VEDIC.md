@@ -8,6 +8,7 @@ Complete documentation for the Vedic (sidereal) astrology module.
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
   - [VedicAstrologyCalculator](#vedicastrologycalculator)
+  - [VedicTransitCalculator](#vedicransitcalculator)
   - [Sub-Calculators](#sub-calculators)
 - [Utility Classes](#utility-classes)
 - [Types Reference](#types-reference)
@@ -176,6 +177,66 @@ Severity values: `'Mild'` | `'Moderate'` | `'Severe'`
 ##### `dispose()`
 
 Release Swiss Ephemeris resources. Always call when done.
+
+---
+
+## VedicTransitCalculator
+
+Finds every sidereal sign-ingress event (gochar) for one or more Vedic planets over a date range. Results are precise to the second.
+
+```typescript
+import { VedicTransitCalculator } from 'openastrology-library';
+
+const transit = new VedicTransitCalculator({ ayanamsa: 'lahiri' });
+```
+
+### Constructor
+
+```typescript
+new VedicTransitCalculator(options?: VedicTransitCalculatorOptions)
+```
+
+**Options:**
+- `ayanamsa?: string` — Ayanamsa system (default: `'lahiri'`). Same values as `VedicAstrologyCalculator`.
+- `ephePath?: string` — Absolute path to directory containing `.se1` ephemeris files.
+
+### Methods
+
+##### `calculateTransitIngresses(planets, startDate, endDate)` → `VedicTransitIngress[]`
+
+Returns all sign-ingress events for the given planets in chronological order.
+
+**Retrograde re-entries are included**: a planet that enters Gemini, retrogrades back into Taurus, then re-enters Gemini while turning direct will appear as three separate entries.
+
+```typescript
+const ingresses = transit.calculateTransitIngresses(
+  ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'rahu', 'ketu'],
+  new Date('2026-01-01'),
+  new Date('2031-01-01')
+);
+
+ingresses.forEach(ing => {
+  const retro = ing.isRetrograde ? ' (R)' : '';
+  console.log(
+    `${ing.planet.padEnd(8)} ${ing.fromSign} → ${ing.sign}` +
+    `  ${ing.date.toISOString()}${retro}`
+  );
+});
+```
+
+##### `dispose()`
+
+Release Swiss Ephemeris file handles. Call when done.
+
+### Precision
+
+| Planet | Method | Typical cost (5-year window) |
+|--------|--------|------------------------------|
+| Sun | `solcross_ut` | ~60 calls |
+| Moon | `mooncross_ut` | ~811 calls |
+| Mercury, Venus, Mars, Jupiter, Saturn, Rahu, Ketu | bisection on `calc_ut` | ~20 000 calls total |
+
+All ingresses are precise to **≤1 second**.
 
 ---
 
@@ -376,6 +437,30 @@ interface PlanetPosition {
 }
 ```
 
+### VedicTransitIngress
+
+```typescript
+interface VedicTransitIngress {
+  planet: Planet;        // Vedic planet name
+  sign: ZodiacSign;      // sign entered
+  fromSign: ZodiacSign;  // sign it was in before
+  date: Date;            // UTC, second-level precision
+  jd: number;            // Julian Day (UT) of the ingress
+  isRetrograde: boolean; // true if planet was retrograde at ingress
+                         // Rahu and Ketu are always true
+  longitude: number;     // sidereal ecliptic longitude at ingress (degrees)
+}
+```
+
+### VedicTransitCalculatorOptions
+
+```typescript
+interface VedicTransitCalculatorOptions {
+  ayanamsa?: string;  // default: 'lahiri'
+  ephePath?: string;
+}
+```
+
 ### Planet
 
 ```typescript
@@ -557,6 +642,47 @@ Object.entries(chart.planets).forEach(([name, p]) => {
 });
 
 vedic.dispose();
+```
+
+---
+
+### Transit Ingresses (Gochar)
+
+```typescript
+import { VedicTransitCalculator } from 'openastrology-library';
+
+const transit = new VedicTransitCalculator({ ayanamsa: 'lahiri' });
+
+// Find all sign changes for all 9 Vedic planets over the next 5 years
+const ingresses = transit.calculateTransitIngresses(
+  ['sun', 'moon', 'mercury', 'venus', 'mars', 'jupiter', 'saturn', 'rahu', 'ketu'],
+  new Date('2026-01-01'),
+  new Date('2031-01-01')
+);
+
+// Filter to Jupiter and Saturn only (slow, significant transits)
+const outerPlanetIngresses = ingresses.filter(
+  ing => ing.planet === 'jupiter' || ing.planet === 'saturn'
+);
+
+outerPlanetIngresses.forEach(ing => {
+  console.log(
+    `${ing.planet} enters ${ing.sign} on ${ing.date.toDateString()}` +
+    (ing.isRetrograde ? ' (retrograde)' : ' (direct)')
+  );
+});
+
+// Makar Sankranti: Sun entering Capricorn
+const makarSankranti = ingresses.find(
+  ing => ing.planet === 'sun' && ing.sign === 'capricorn'
+);
+console.log('Makar Sankranti 2026:', makarSankranti?.date.toDateString());
+
+// Rahu/Ketu axis ingresses (always retrograde)
+const rahuIngresses = ingresses.filter(ing => ing.planet === 'rahu');
+console.log(`Rahu sign changes: ${rahuIngresses.length}`);
+
+transit.dispose();
 ```
 
 ---

@@ -16,6 +16,7 @@ A comprehensive astrology calculation library - **Vedic** and **Western** - powe
 - **Vedic Aspects** - House-based Drishti with mutual reception
 - **Nakshatras** - Full nakshatra and pada calculations
 - **House Systems** - Whole Sign, Equal, Placidus, Koch, and more
+- **Transit Ingresses** (`VedicTransitCalculator`) - Sidereal sign-ingress events with retrograde tracking
 
 ### Western Astrology (`WesternAstrologyCalculator`)
 - **Birth Chart** - Tropical chart with 14 planets/points (Sun–Pluto + Chiron + North Node + South Node + Lilith)
@@ -25,6 +26,7 @@ A comprehensive astrology calculation library - **Vedic** and **Western** - powe
 - **Western Dignities** - Domicile, Exalted, Detriment, Fall (including modern planet rulerships)
 - **Elements & Qualities** - Per-planet element (fire/earth/air/water) and quality (cardinal/fixed/mutable) with chart-level summary counts
 - **House Systems** - Placidus (default), Koch, Equal, and more
+- **Transit Ingresses** (`WesternTransitCalculator`) - Tropical sign-ingress events with retrograde tracking
 
 ### Shared
 - **Timezone Support** - Automatic timezone and DST handling via Luxon
@@ -137,8 +139,8 @@ western.dispose();
 
 ## Documentation
 
-- 🪐 **[Vedic Astrology Documentation](./DOCS_VEDIC.md)** - VedicAstrologyCalculator, divisional charts, dashas, yogas, ashtakavarga
-- ☀️ **[Western Astrology Documentation](./DOCS_WESTERN.md)** - WesternAstrologyCalculator, aspects, chart patterns, dignities
+- 🪐 **[Vedic Astrology Documentation](./DOCS_VEDIC.md)** - VedicAstrologyCalculator, VedicTransitCalculator, divisional charts, dashas, yogas, ashtakavarga
+- ☀️ **[Western Astrology Documentation](./DOCS_WESTERN.md)** - WesternAstrologyCalculator, WesternTransitCalculator, aspects, chart patterns, dignities
 
 ## License
 
@@ -155,6 +157,22 @@ See [LICENSING.md](LICENSING.md) for detailed information.
 - 💰 **No payment needed to this library** - only to Astrodienst AG for Swiss Ephemeris
 
 ## Changelog
+
+### 1.1.0
+#### Under the hood
+- Migrated Swiss Ephemeris bindings from `swisseph` to [`sweph`](https://github.com/timotejroiko/sweph)
+  - `sweph` is a modern N-API addon that is ABI-stable across Node.js versions and does not require recompilation on upgrades
+  - Fixed `SEFLG_SIDEREAL` flag value (`65536`, corrected from the incorrect `64` used by `swisseph`)
+  - All function and constant names updated to the new API (`calc_ut`, `constants.SE_*`, etc.)
+
+#### Transit Calculators
+- Added `VedicTransitCalculator` — finds all sidereal sign-ingress events for Vedic planets (Sun, Moon, Mercury, Venus, Mars, Jupiter, Saturn, Rahu, Ketu) over any date range
+- Added `WesternTransitCalculator` — finds all tropical sign-ingress events for Western planets (all 14 incl. Uranus, Neptune, Pluto, Chiron, Lilith, north/south node)
+- Sun uses `solcross_ut`, Moon uses `mooncross_ut` for exact zero-cost precision; all other planets use adaptive coarse-step sampling + bisection to second-level accuracy
+- Retrograde ingresses are fully tracked (`isRetrograde` flag on each `VedicTransitIngress` / `WesternTransitIngress`)
+- Rahu/Ketu and north_node/south_node are always `isRetrograde: true` per traditional convention
+- Each ingress includes `planet`, `sign`, `fromSign`, `date` (UTC, second precision), `jd`, `isRetrograde`, `longitude`
+- New types: `VedicTransitIngress`, `VedicTransitCalculatorOptions`, `WesternTransitIngress`, `WesternTransitCalculatorOptions`
 
 ### 1.0.1
 #### Western Astrology
@@ -173,7 +191,7 @@ See [LICENSING.md](LICENSING.md) for detailed information.
 ## Credits
 
 - **Swiss Ephemeris** by Astrodienst AG
-- **swisseph** Node.js bindings
+- **sweph** Node.js bindings by Timotej Roiko
 - **Luxon** for timezone handling
 
 ## Contributing

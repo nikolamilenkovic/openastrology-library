@@ -2,100 +2,73 @@ import { VedicAstrologyCalculator } from '../../src';
 import { BirthInfo } from '../../src';
 import { FormattingUtils } from '../../src';
 
-// Mock swisseph module
-jest.mock('swisseph', () => ({
-    SE_SUN: 0,
-    SE_MOON: 1,
-    SE_MERCURY: 2,
-    SE_VENUS: 3,
-    SE_MARS: 4,
-    SE_JUPITER: 5,
-    SE_SATURN: 6,
-    SE_MEAN_NODE: 10,
-    SE_TRUE_NODE: 11,
-    SE_GREG_CAL: 1,
-    SEFLG_SIDEREAL: 64,
-    SE_SIDM_LAHIRI: 1,
-    SE_SIDM_RAMAN: 2,
-    SE_SIDM_KRISHNAMURTI: 3,
-    SE_SIDM_YUKTESHWAR: 4,
-    SE_SIDM_JN_BHASIN: 5,
-    SE_SIDM_BABYL_KUGLER1: 6,
-    SE_SIDM_TRUE_CITRA: 7,
-    SE_SIDM_TRUE_REVATI: 8,
-    SE_SIDM_TRUE_PUSHYA: 9,
-    
-    swe_set_ephe_path: jest.fn(),
-    swe_set_sid_mode: jest.fn(),
-    swe_get_ayanamsa: jest.fn().mockReturnValue(23.727222), // 23:43:38 from Parashara's Light
-    swe_julday: jest.fn().mockReturnValue(2448059.041667), // Correct Julian day for 1990-06-15 13:00 UTC
-    swe_calc: jest.fn().mockImplementation((jd: number, planet: number, flags: number) => {
+// Mock sweph module
+jest.mock('sweph', () => ({
+    constants: {
+        SE_SUN: 0,
+        SE_MOON: 1,
+        SE_MERCURY: 2,
+        SE_VENUS: 3,
+        SE_MARS: 4,
+        SE_JUPITER: 5,
+        SE_SATURN: 6,
+        SE_MEAN_NODE: 10,
+        SE_TRUE_NODE: 11,
+        SE_GREG_CAL: 1,
+        SEFLG_SIDEREAL: 65536,
+        SEFLG_SPEED: 256,
+        SE_SIDM_LAHIRI: 1,
+        SE_SIDM_RAMAN: 3,
+        SE_SIDM_KRISHNAMURTI: 5,
+        SE_SIDM_YUKTESHWAR: 7,
+        SE_SIDM_JN_BHASIN: 8,
+        SE_SIDM_BABYL_KUGLER1: 9,
+        SE_SIDM_TRUE_CITRA: 27,
+        SE_SIDM_TRUE_REVATI: 28,
+        SE_SIDM_TRUE_PUSHYA: 29,
+    },
+
+    set_ephe_path: jest.fn(),
+    set_sid_mode: jest.fn(),
+    get_ayanamsa: jest.fn().mockReturnValue(23.727222), // 23:43:38 from Parashara's Light
+    julday: jest.fn().mockReturnValue(2448059.041667), // Correct Julian day for 1990-06-15 13:00 UTC
+    calc: jest.fn().mockImplementation((jd: number, planet: number, flags: number) => {
         // Mock planetary positions based on planet ID - using SIDEREAL positions from Parashara's Light
         switch (planet) {
             case 0: // Sun
                 return {
-                    longitude: 60.601389, // 60:36:05 in Gemini (sidereal)
-                    latitude: 0.0,
-                    distance: 1.0,
-                    longitudeSpeed: 1.0,
-                    speed_longitude: 1.0,
-                    latitudeSpeed: 0.0,
-                    speed_latitude: 0.0,
-                    distanceSpeed: 0.0,
-                    speed_distance: 0.0,
-                    rflag: 64
+                    flag: 65792,
+                    error: '',
+                    data: [60.601389, 0.0, 1.0, 1.0, 0.0, 0.0]
                 };
             case 1: // Moon
                 return {
-                    longitude: 324.422222, // 324:25:20 in Aquarius (sidereal)
-                    latitude: 0.0,
-                    distance: 1.0,
-                    longitudeSpeed: 13.2,
-                    speed_longitude: 13.2,
-                    latitudeSpeed: 0.0,
-                    speed_latitude: 0.0,
-                    distanceSpeed: 0.0,
-                    speed_distance: 0.0,
-                    rflag: 64
+                    flag: 65792,
+                    error: '',
+                    data: [324.422222, 0.0, 1.0, 13.2, 0.0, 0.0]
                 };
             case 11: // Rahu (SE_TRUE_NODE)
                 return {
-                    longitude: 284.396944, // 284:23:49 (sidereal)
-                    latitude: 0.0,
-                    distance: 1.0,
-                    longitudeSpeed: -0.05,
-                    speed_longitude: -0.05,
-                    latitudeSpeed: 0.0,
-                    speed_latitude: 0.0,
-                    distanceSpeed: 0.0,
-                    speed_distance: 0.0,
-                    rflag: 64
+                    flag: 65792,
+                    error: '',
+                    data: [284.396944, 0.0, 1.0, -0.05, 0.0, 0.0]
                 };
             default:
                 return {
-                    longitude: 100 + planet * 30,
-                    latitude: 0.0,
-                    distance: 1.0,
-                    longitudeSpeed: 1.0,
-                    speed_longitude: 1.0,
-                    latitudeSpeed: 0.0,
-                    speed_latitude: 0.0,
-                    distanceSpeed: 0.0,
-                    speed_distance: 0.0,
-                    rflag: 64
+                    flag: 65792,
+                    error: '',
+                    data: [100 + planet * 30, 0.0, 1.0, 1.0, 0.0, 0.0]
                 };
         }
     }),
-    swe_houses: jest.fn().mockReturnValue({
-        // Equal house cusps starting from Virgo ascendant (150° + 6.15° = 156.15°)
-        // In tropical, ascendant would be ~180° (Virgo in sidereal = Libra in tropical + ayanamsa)
-        // Tropical ascendant ≈ 156.15 + 23.727 ≈ 179.877° (start of Libra)
-        // These are TROPICAL house cusps, will be converted to sidereal by subtracting ayanamsa
-        house: [179.877, 209.877, 239.877, 269.877, 299.877, 329.877, 359.877, 29.877, 59.877, 89.877, 119.877, 149.877],
-        ascendant: 179.877, // Tropical ascendant (will be converted to sidereal: 179.877 - 23.727 = 156.15° in Virgo)
-        mc: 119.877
+    houses: jest.fn().mockReturnValue({
+        flag: 0,
+        data: {
+            houses: [179.877, 209.877, 239.877, 269.877, 299.877, 329.877, 359.877, 29.877, 59.877, 89.877, 119.877, 149.877],
+            points: [179.877, 119.877, 0, 0, 0, 0, 0, 0]
+        }
     }),
-    swe_close: jest.fn()
+    close: jest.fn()
 }));
 
 describe(VedicAstrologyCalculator.name, () => {

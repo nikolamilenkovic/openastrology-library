@@ -1,6 +1,6 @@
 {
     "name": "openastrology-library",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "description": "Comprehensive Vedic and Western astrology calculation library powered by Swiss Ephemeris - birth charts, divisional charts, dashas, yogas, aspects, chart patterns, and more",
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
@@ -62,7 +62,7 @@
     },
     "dependencies": {
         "luxon": "^3.6.1",
-        "swisseph": "^0.5.17"
+        "sweph": "2.10.3-5"
     },
     "devDependencies": {
         "@types/jest": "^29.5.14",

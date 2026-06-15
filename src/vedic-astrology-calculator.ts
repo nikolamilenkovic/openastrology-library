@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import * as swisseph from 'swisseph';
+import { set_ephe_path, set_sid_mode, get_ayanamsa, julday, calc, houses as calcHouses, close, constants } from 'sweph';
 import { YogaCalculator } from './yoga-calculator';
 import { DashaCalculator } from './dasha-calculator';
 import { AspectCalculator } from './aspect-calculator';
@@ -15,15 +15,15 @@ export class VedicAstrologyCalculator {
     private readonly houseSystem: string;
 
     private static readonly PLANET_MAPPING: Record<string, number> = {
-        sun: swisseph.SE_SUN,
-        moon: swisseph.SE_MOON,
-        mercury: swisseph.SE_MERCURY,
-        venus: swisseph.SE_VENUS,
-        mars: swisseph.SE_MARS,
-        jupiter: swisseph.SE_JUPITER,
-        saturn: swisseph.SE_SATURN,
-        rahu: swisseph.SE_TRUE_NODE,
-        ketu: swisseph.SE_TRUE_NODE // Ketu is 180 degrees from Rahu
+        sun: constants.SE_SUN,
+        moon: constants.SE_MOON,
+        mercury: constants.SE_MERCURY,
+        venus: constants.SE_VENUS,
+        mars: constants.SE_MARS,
+        jupiter: constants.SE_JUPITER,
+        saturn: constants.SE_SATURN,
+        rahu: constants.SE_TRUE_NODE,
+        ketu: constants.SE_TRUE_NODE // Ketu is 180 degrees from Rahu
     };
 
     // Combustion distances in degrees (traditional Vedic values)
@@ -40,15 +40,15 @@ export class VedicAstrologyCalculator {
     };
 
     private static readonly AYANAMSA_MAPPING: Record<string, number> = {
-        lahiri: swisseph.SE_SIDM_LAHIRI,
-        raman: swisseph.SE_SIDM_RAMAN,
-        krishnamurti: swisseph.SE_SIDM_KRISHNAMURTI,
-        yukteshwar: swisseph.SE_SIDM_YUKTESHWAR,
-        jnbhasin: swisseph.SE_SIDM_JN_BHASIN,
-        babinaikamytry: swisseph.SE_SIDM_BABYL_KUGLER1,
-        truecitra: swisseph.SE_SIDM_TRUE_CITRA,
-        truerevati: swisseph.SE_SIDM_TRUE_REVATI,
-        truepushya: swisseph.SE_SIDM_TRUE_PUSHYA
+        lahiri: constants.SE_SIDM_LAHIRI,
+        raman: constants.SE_SIDM_RAMAN,
+        krishnamurti: constants.SE_SIDM_KRISHNAMURTI,
+        yukteshwar: constants.SE_SIDM_YUKTESHWAR,
+        jnbhasin: constants.SE_SIDM_JN_BHASIN,
+        babinaikamytry: constants.SE_SIDM_BABYL_KUGLER1,
+        truecitra: constants.SE_SIDM_TRUE_CITRA,
+        truerevati: constants.SE_SIDM_TRUE_REVATI,
+        truepushya: constants.SE_SIDM_TRUE_PUSHYA
     };
 
     private static readonly HOUSE_SYSTEM_MAPPING: Record<string, string> = {
@@ -65,7 +65,7 @@ export class VedicAstrologyCalculator {
 
     constructor(options: VedicAstrologyCalculatorOptions = {}) {
         const ephePath = options.ephePath ?? (__dirname + '/ephe');
-        swisseph.swe_set_ephe_path(ephePath);
+        set_ephe_path(ephePath);
 
         this.ayanamsa = options.ayanamsa?.toLowerCase() || 'lahiri';
         this.houseSystem = options.houseSystem?.toLowerCase() || 'equal';
@@ -82,10 +82,10 @@ export class VedicAstrologyCalculator {
 
             const { julianDay, birthDateUtc } = this.calculateJulianDay(birthInfo);
 
-            const ayanamsaType = VedicAstrologyCalculator.AYANAMSA_MAPPING[this.ayanamsa] || swisseph.SE_SIDM_LAHIRI;
-            swisseph.swe_set_sid_mode(ayanamsaType, 0, 0);
+            const ayanamsaType = VedicAstrologyCalculator.AYANAMSA_MAPPING[this.ayanamsa] || constants.SE_SIDM_LAHIRI;
+            set_sid_mode(ayanamsaType, 0, 0);
 
-            const ayanamsaValue = swisseph.swe_get_ayanamsa(julianDay);
+            const ayanamsaValue = get_ayanamsa(julianDay);
 
             const planets = await this.calculatePlanetaryPositions(julianDay);
             const { houses, ascendant } = await this.calculateHouses(julianDay, birthInfo.latitude, birthInfo.longitude, this.houseSystem);
@@ -223,7 +223,7 @@ export class VedicAstrologyCalculator {
      * Release Swiss Ephemeris resources.
      */
     dispose(): void {
-        swisseph.swe_close();
+        close();
     }
 
     // ─── Private helpers ────────────────────────────────────────────────────────
@@ -275,7 +275,7 @@ export class VedicAstrologyCalculator {
 
         const dtUtc = dt.toUTC();
         const timeDecimal = dtUtc.hour + dtUtc.minute / 60 + dtUtc.second / 3600;
-        const julianDay = swisseph.swe_julday(dtUtc.year, dtUtc.month, dtUtc.day, timeDecimal, swisseph.SE_GREG_CAL);
+        const julianDay = julday(dtUtc.year, dtUtc.month, dtUtc.day, timeDecimal, constants.SE_GREG_CAL);
         const birthDateUtc = dt.toUTC().toJSDate();
 
         return { julianDay, birthDateUtc };
@@ -285,34 +285,34 @@ export class VedicAstrologyCalculator {
         const planets: Record<Planet, PlanetPosition> = {} as any;
         let sunLongitude = 0;
 
-        const sunResult = swisseph.swe_calc(julianDay, swisseph.SE_SUN, swisseph.SEFLG_SIDEREAL | swisseph.SEFLG_SPEED) as any;
-        if (sunResult.rflag >= 0) sunLongitude = sunResult.longitude || 0;
+        const sunResult = calc(julianDay, constants.SE_SUN, constants.SEFLG_SIDEREAL | constants.SEFLG_SPEED);
+        if (sunResult.flag >= 0) sunLongitude = sunResult.data[0] || 0;
 
         for (const [planetName, planetId] of Object.entries(VedicAstrologyCalculator.PLANET_MAPPING)) {
             try {
                 let position: number[];
 
                 if (planetName === 'ketu') {
-                    const rahuResult = swisseph.swe_calc(julianDay, swisseph.SE_TRUE_NODE, swisseph.SEFLG_SIDEREAL | swisseph.SEFLG_SPEED) as any;
-                    if (rahuResult.rflag < 0) throw new Error(`Failed to calculate Rahu position for Ketu calculation`);
+                    const rahuResult = calc(julianDay, constants.SE_TRUE_NODE, constants.SEFLG_SIDEREAL | constants.SEFLG_SPEED);
+                    if (rahuResult.flag < 0) throw new Error(`Failed to calculate Rahu position for Ketu calculation`);
                     position = [
-                        (rahuResult.longitude + 180) % 360,
-                        rahuResult.latitude || 0,
-                        rahuResult.distance || 1,
-                        rahuResult.longitudeSpeed || 0,
-                        rahuResult.latitudeSpeed || 0,
-                        rahuResult.distanceSpeed || 0
+                        (rahuResult.data[0] + 180) % 360,
+                        rahuResult.data[1] || 0,
+                        rahuResult.data[2] || 1,
+                        rahuResult.data[3] || 0,
+                        rahuResult.data[4] || 0,
+                        rahuResult.data[5] || 0
                     ];
                 } else {
-                    const result = swisseph.swe_calc(julianDay, planetId, swisseph.SEFLG_SIDEREAL | swisseph.SEFLG_SPEED) as any;
-                    if (result.rflag < 0) throw new Error(`Failed to calculate ${planetName} position`);
+                    const result = calc(julianDay, planetId, constants.SEFLG_SIDEREAL | constants.SEFLG_SPEED);
+                    if (result.flag < 0) throw new Error(`Failed to calculate ${planetName} position`);
                     position = [
-                        result.longitude || 0,
-                        result.latitude || 0,
-                        result.distance || 1,
-                        result.longitudeSpeed || 0,
-                        result.latitudeSpeed || 0,
-                        result.distanceSpeed || 0
+                        result.data[0] || 0,
+                        result.data[1] || 0,
+                        result.data[2] || 1,
+                        result.data[3] || 0,
+                        result.data[4] || 0,
+                        result.data[5] || 0
                     ];
                 }
 
@@ -361,12 +361,12 @@ export class VedicAstrologyCalculator {
         const systemToUse = houseSystem || this.houseSystem;
         const hsysCode = VedicAstrologyCalculator.HOUSE_SYSTEM_MAPPING[systemToUse] || 'E';
 
-        const ayanamsaValue = swisseph.swe_get_ayanamsa(julianDay);
-        const result = swisseph.swe_houses(julianDay, latitude, longitude, hsysCode) as any;
+        const ayanamsaValue = get_ayanamsa(julianDay);
+        const result = calcHouses(julianDay, latitude, longitude, hsysCode);
 
-        if (!result || !result.house) throw new Error(`Failed to calculate houses: Invalid result from Swiss Ephemeris`);
+        if (!result || !result.data?.houses) throw new Error(`Failed to calculate houses: Invalid result from Swiss Ephemeris`);
 
-        let ascendantLongitude = (result.ascendant - ayanamsaValue + 360) % 360;
+        let ascendantLongitude = (result.data.points[0] - ayanamsaValue + 360) % 360;
 
         const ascendantSign = ZodiacUtils.getSignFromLongitude(ascendantLongitude);
         const ascendantDegree = ZodiacUtils.getDegreeInSign(ascendantLongitude);
@@ -416,7 +416,7 @@ export class VedicAstrologyCalculator {
         } else {
             for (let i = 0; i < 12; i++) {
                 const houseNum = (i + 1) as HouseNumber;
-                const cusp = (result.house[i] - ayanamsaValue + 360) % 360;
+                const cusp = (result.data.houses[i] - ayanamsaValue + 360) % 360;
                 const sign = ZodiacUtils.getSignFromLongitude(cusp);
                 const lord = ZodiacUtils.getSignLord(sign);
                 houses[houseNum] = {

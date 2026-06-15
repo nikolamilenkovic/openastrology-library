@@ -1,25 +1,27 @@
 import { WesternAstrologyCalculator } from '../../src';
 import { BirthInfo } from '../../src';
 
-// Mock swisseph module (tropical mode - no sidereal flags needed)
-jest.mock('swisseph', () => ({
-    SE_SUN: 0,
-    SE_MOON: 1,
-    SE_MERCURY: 2,
-    SE_VENUS: 3,
-    SE_MARS: 4,
-    SE_JUPITER: 5,
-    SE_SATURN: 6,
-    SE_URANUS: 7,
-    SE_NEPTUNE: 8,
-    SE_PLUTO: 9,
-    SE_CHIRON: 15,
-    SE_GREG_CAL: 1,
-    SEFLG_SPEED: 256,
+// Mock sweph module (tropical mode - no sidereal flags needed)
+jest.mock('sweph', () => ({
+    constants: {
+        SE_SUN: 0,
+        SE_MOON: 1,
+        SE_MERCURY: 2,
+        SE_VENUS: 3,
+        SE_MARS: 4,
+        SE_JUPITER: 5,
+        SE_SATURN: 6,
+        SE_URANUS: 7,
+        SE_NEPTUNE: 8,
+        SE_PLUTO: 9,
+        SE_CHIRON: 15,
+        SE_GREG_CAL: 1,
+        SEFLG_SPEED: 256,
+    },
 
-    swe_set_ephe_path: jest.fn(),
-    swe_julday: jest.fn().mockReturnValue(2448059.041667),
-    swe_calc: jest.fn().mockImplementation((_jd: number, planet: number, _flags: number) => {
+    set_ephe_path: jest.fn(),
+    julday: jest.fn().mockReturnValue(2448059.041667),
+    calc: jest.fn().mockImplementation((_jd: number, planet: number, _flags: number) => {
         // Tropical positions (slightly higher than sidereal since no ayanamsa removed)
         const positions: Record<number, number> = {
             0: 84.33,    // Sun ~24° Gemini tropical
@@ -32,38 +34,38 @@ jest.mock('swisseph', () => ({
             7: 280.10,   // Uranus ~10° Capricorn
             8: 283.40,   // Neptune ~13° Capricorn
             9: 224.90,   // Pluto ~14° Scorpio
+            11: 285.00,  // North Node
+            12: 100.00,  // Lilith
             15: 90.55    // Chiron ~0° Cancer
         };
         const lon = positions[planet] ?? 0;
         return {
-            longitude: lon,
-            latitude: 0.0,
-            distance: 1.0,
-            longitudeSpeed: planet === 7 ? -0.01 : 1.0, // Uranus retrograde for testing
-            latitudeSpeed: 0.0,
-            distanceSpeed: 0.0,
-            rflag: 0 // tropical: rflag 0 is fine (no sidereal flag)
+            flag: 0,
+            error: '',
+            data: [lon, 0.0, 1.0, planet === 7 ? -0.01 : 1.0, 0.0, 0.0]
         };
     }),
-    swe_houses: jest.fn().mockReturnValue({
-        house: [
-            45.0,  // H1
-            75.0,  // H2
-            105.0, // H3
-            135.0, // H4
-            165.0, // H5
-            195.0, // H6
-            225.0, // H7
-            255.0, // H8
-            285.0, // H9
-            315.0, // H10
-            345.0, // H11
-            15.0   // H12
-        ],
-        ascendant: 45.0,
-        mc: 315.0
+    houses: jest.fn().mockReturnValue({
+        flag: 0,
+        data: {
+            houses: [
+                45.0,  // H1
+                75.0,  // H2
+                105.0, // H3
+                135.0, // H4
+                165.0, // H5
+                195.0, // H6
+                225.0, // H7
+                255.0, // H8
+                285.0, // H9
+                315.0, // H10
+                345.0, // H11
+                15.0   // H12
+            ],
+            points: [45.0, 315.0, 0, 0, 0, 0, 0, 0]
+        }
     }),
-    swe_close: jest.fn()
+    close: jest.fn()
 }));
 
 const birthInfo: BirthInfo = {

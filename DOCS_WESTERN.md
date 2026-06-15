@@ -8,6 +8,7 @@ Complete documentation for the Western (tropical) astrology module.
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
   - [WesternAstrologyCalculator](#westernastrologycalculator)
+  - [WesternTransitCalculator](#westerntransitcalculator)
   - [Sub-Calculators](#sub-calculators)
 - [Utility Classes](#utility-classes)
 - [Types Reference](#types-reference)
@@ -140,6 +141,77 @@ Detect chart patterns from a set of planet positions and their pre-calculated as
 ##### `dispose()`
 
 Release Swiss Ephemeris resources. Always call when done.
+
+---
+
+## WesternTransitCalculator
+
+Finds every tropical sign-ingress event for one or more Western planets over a date range. Results are precise to the second.
+
+```typescript
+import { WesternTransitCalculator } from 'openastrology-library';
+
+const transit = new WesternTransitCalculator();
+```
+
+### Constructor
+
+```typescript
+new WesternTransitCalculator(options?: WesternTransitCalculatorOptions)
+```
+
+**Options:**
+- `ephePath?: string` — Absolute path to directory containing `.se1` ephemeris files.
+
+No `ayanamsa` option: the calculator always uses tropical (no sidereal shift).
+
+### Methods
+
+##### `calculateTransitIngresses(planets, startDate, endDate)` → `WesternTransitIngress[]`
+
+Returns all sign-ingress events for the given planets in chronological order.
+
+**Retrograde re-entries are included**: a planet that enters Gemini, retrogrades back into Taurus, then re-enters Gemini while turning direct will appear as three separate entries.
+
+```typescript
+const ingresses = transit.calculateTransitIngresses(
+  ['sun', 'moon', 'mercury', 'venus', 'mars',
+   'jupiter', 'saturn', 'uranus', 'neptune', 'pluto',
+   'chiron', 'north_node', 'south_node', 'lilith'],
+  new Date('2026-01-01'),
+  new Date('2031-01-01')
+);
+
+ingresses.forEach(ing => {
+  const retro = ing.isRetrograde ? ' (R)' : '';
+  console.log(
+    `${ing.planet.padEnd(12)} ${ing.fromSign} → ${ing.sign}` +
+    `  ${ing.date.toISOString()}${retro}`
+  );
+});
+```
+
+##### `dispose()`
+
+Release Swiss Ephemeris file handles. Call when done.
+
+### Precision
+
+| Planet | Method | Step size |
+|--------|--------|-----------|
+| Sun | `solcross_ut` | exact |
+| Moon | `mooncross_ut` | exact |
+| Mercury | bisection on `calc_ut` | 6 h |
+| Venus | bisection on `calc_ut` | 12 h |
+| Mars | bisection on `calc_ut` | 1 day |
+| Jupiter | bisection on `calc_ut` | 5 days |
+| Saturn | bisection on `calc_ut` | 7 days |
+| Uranus | bisection on `calc_ut` | 15 days |
+| Neptune | bisection on `calc_ut` | 20 days |
+| Pluto | bisection on `calc_ut` | 30 days |
+| north/south node, Chiron, Lilith | bisection on `calc_ut` | 5–7 days |
+
+All ingresses are precise to **≤1 second**.
 
 ---
 
@@ -350,6 +422,29 @@ interface HouseInfo {
 }
 ```
 
+### WesternTransitIngress
+
+```typescript
+interface WesternTransitIngress {
+  planet: WesternPlanet;  // Western planet name
+  sign: ZodiacSign;       // sign entered
+  fromSign: ZodiacSign;   // sign it was in before
+  date: Date;             // UTC, second-level precision
+  jd: number;             // Julian Day (UT) of the ingress
+  isRetrograde: boolean;  // true if planet was retrograde at ingress
+                          // north_node and south_node are always true
+  longitude: number;      // tropical ecliptic longitude at ingress (degrees)
+}
+```
+
+### WesternTransitCalculatorOptions
+
+```typescript
+interface WesternTransitCalculatorOptions {
+  ephePath?: string;
+}
+```
+
 ---
 
 ## Examples
@@ -517,6 +612,49 @@ console.log('Moon signs:', chart1.planets.moon.sign, 'vs', chart2.planets.moon.s
 console.log('Ascendants:', chart1.ascendant.sign, 'vs', chart2.ascendant.sign);
 
 western.dispose();
+```
+
+---
+
+### Transit Ingresses
+
+```typescript
+import { WesternTransitCalculator } from 'openastrology-library';
+
+const transit = new WesternTransitCalculator();
+
+// Find all sign changes for outer planets over the next 5 years
+const ingresses = transit.calculateTransitIngresses(
+  ['jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'north_node', 'chiron'],
+  new Date('2026-01-01'),
+  new Date('2031-01-01')
+);
+
+ingresses.forEach(ing => {
+  console.log(
+    `${ing.planet} enters ${ing.sign} on ${ing.date.toDateString()}` +
+    (ing.isRetrograde ? ' (retrograde)' : ' (direct)')
+  );
+});
+
+// Spring equinox: Sun entering tropical Aries
+const springIngresses = transit.calculateTransitIngresses(
+  ['sun'],
+  new Date('2026-03-15'),
+  new Date('2026-03-25')
+);
+const equinox = springIngresses.find(i => i.sign === 'aries');
+console.log('Spring equinox 2026:', equinox?.date.toISOString());
+
+// north_node and south_node always change sign simultaneously
+const nodeIngresses = transit.calculateTransitIngresses(
+  ['north_node', 'south_node'],
+  new Date('2026-01-01'),
+  new Date('2028-01-01')
+);
+console.log(`Node sign changes: ${nodeIngresses.length / 2}`);
+
+transit.dispose();
 ```
 
 ---
