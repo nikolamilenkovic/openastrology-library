@@ -6,7 +6,7 @@ import { AspectCalculator } from './aspect-calculator';
 import { AshtakavargaCalculator } from './ashtakavarga-calculator';
 import { DivisionalChartCalculator } from './divisional-chart-calculator';
 import { ZodiacUtils, NakshatraUtils, HouseUtils, FormattingUtils } from './astrological-utils';
-import { BirthInfo, VedicChartCalculations, PlanetPosition, HouseInfo, Planet, ZodiacSign, HouseNumber, VedicAstrologyCalculatorOptions, PlanetAspect, VimshottariDasha, PlanetDasha, Nakshatra, AshtakavargaCalculations } from './types/vedic.types';
+import { BirthInfo, VedicChartCalculations, PlanetPosition, HouseInfo, Planet, ZodiacSign, HouseNumber, VedicAstrologyCalculatorOptions, PlanetAspect, VimshottariDasha, PlanetDasha, Nakshatra, AshtakavargaCalculations, VedicDignity } from './types/vedic.types';
 
 export { VedicAstrologyCalculatorOptions };
 
@@ -479,7 +479,7 @@ export class VedicAstrologyCalculator {
         return 1;
     }
 
-    private calculatePlanetaryDignity(planet: Planet, sign: ZodiacSign): string {
+    private calculatePlanetaryDignity(planet: Planet, sign: ZodiacSign): VedicDignity {
         const exaltation: Record<Planet, ZodiacSign> = {
             sun: 'aries', moon: 'taurus', mars: 'capricorn', mercury: 'virgo',
             jupiter: 'cancer', venus: 'pisces', saturn: 'libra',
@@ -497,10 +497,10 @@ export class VedicAstrologyCalculator {
             rahu: [], ketu: []
         };
 
-        if (exaltation[planet] === sign) return 'Exalted';
-        if (debilitation[planet] === sign) return 'Debilitated';
-        if (ownSigns[planet]?.includes(sign)) return 'Own Sign';
-        return 'Neutral';
+        if (exaltation[planet] === sign) return 'exalted';
+        if (debilitation[planet] === sign) return 'debilitated';
+        if (ownSigns[planet]?.includes(sign)) return 'own_sign';
+        return 'neutral';
     }
 
     private calculateHouseStrength(houseNumber: HouseNumber, _sign: ZodiacSign): number {

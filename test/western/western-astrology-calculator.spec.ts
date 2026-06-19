@@ -150,7 +150,7 @@ describe('WesternAstrologyCalculator', () => {
         it('calculates Western dignities', async () => {
             const chart = await calculator.calculateChart(birthInfo);
             // All dignity values should be one of the expected strings
-            const validDignities = ['Exalted', 'Fall', 'Domicile', 'Detriment', 'Neutral'];
+            const validDignities = ['exalted', 'fall', 'domicile', 'detriment', 'neutral'];
             for (const planet of Object.values(chart.planets)) {
                 expect(validDignities).toContain(planet.dignity);
             }

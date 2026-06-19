@@ -23,7 +23,7 @@ A comprehensive astrology calculation library - **Vedic** and **Western** - powe
 - **Angles** - Ascendant (Asc), Descendant (Dsc), Midheaven (MC), Imum Coeli (IC)
 - **Aspects** - All major and minor aspects with configurable orbs (conjunction, sextile, square, trine, opposition, quincunx, semi-sextile, semi-square, sesquiquadrate, quintile, biquintile)
 - **Chart Patterns** - Grand Trine, T-Square, Grand Cross, Stellium, Yod
-- **Western Dignities** - Domicile, Exalted, Detriment, Fall (including modern planet rulerships)
+- **Western Dignities** - Domicile, Exalted, Detriment, Fall typed as `WesternDignity` (including modern planet rulerships)
 - **Elements & Qualities** - Per-planet element (fire/earth/air/water) and quality (cardinal/fixed/mutable) with chart-level summary counts
 - **House Systems** - Placidus (default), Koch, Equal, and more
 - **Transit Ingresses** (`WesternTransitCalculator`) - Tropical sign-ingress events with retrograde tracking
@@ -157,6 +157,12 @@ See [LICENSING.md](LICENSING.md) for detailed information.
 - 💰 **No payment needed to this library** - only to Astrodienst AG for Swiss Ephemeris
 
 ## Changelog
+
+### 1.1.1
+#### Types
+- Added `VedicDignity` type (`'exalted' | 'debilitated' | 'own_sign' | 'neutral'`) - replaces the untyped `string` on `PlanetPosition.dignity`
+- Added `WesternDignity` type (`'exalted' | 'fall' | 'domicile' | 'detriment' | 'neutral'`) - replaces the untyped `string` on `WesternPlanetPosition.dignity`
+- All dignity values are now snake_case string literals (e.g. `'own_sign'` instead of `'Own Sign'`)
 
 ### 1.1.0
 #### Under the hood

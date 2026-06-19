@@ -432,7 +432,7 @@ interface PlanetPosition {
   isRetrograde: boolean;
   isCombust: boolean;
   speed: number;
-  dignity: 'Exalted' | 'Debilitated' | 'Own Sign' | 'Neutral';
+  dignity: VedicDignity; // 'exalted' | 'debilitated' | 'own_sign' | 'neutral'
   aspects: Aspect[];
 }
 ```

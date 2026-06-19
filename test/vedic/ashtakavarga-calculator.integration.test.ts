@@ -13,7 +13,7 @@ const mockPlanetData = {
     isRetrograde: false,
     isCombust: false,
     speed: 1.0,
-    dignity: 'Own Sign',
+    dignity: 'own_sign' as const,
     aspects: []
 };
 

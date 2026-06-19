@@ -18,7 +18,7 @@ describe('DashaCalculator', () => {
         isRetrograde: false,
         isCombust: false,
         speed: 13.2,
-        dignity: 'Own Sign',
+        dignity: 'own_sign',
         aspects: []
     });
 

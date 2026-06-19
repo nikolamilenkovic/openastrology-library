@@ -19,7 +19,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: false,
             isCombust: false,
             speed: 1.0,
-            dignity: 'Own Sign',
+            dignity: 'own_sign',
             aspects: []
         },
         moon: {
@@ -37,7 +37,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: false,
             isCombust: false,
             speed: 13.0,
-            dignity: 'Neutral',
+            dignity: 'neutral',
             aspects: []
         },
         mars: {
@@ -55,7 +55,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: false,
             isCombust: false,
             speed: 0.5,
-            dignity: 'Own Sign',
+            dignity: 'own_sign',
             aspects: []
         },
         mercury: {
@@ -73,7 +73,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: false,
             isCombust: false,
             speed: 1.5,
-            dignity: 'Own Sign',
+            dignity: 'own_sign',
             aspects: []
         },
         jupiter: {
@@ -91,7 +91,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: false,
             isCombust: false,
             speed: 0.08,
-            dignity: 'Exalted',
+            dignity: 'exalted',
             aspects: []
         },
         venus: {
@@ -109,7 +109,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: false,
             isCombust: false,
             speed: 1.2,
-            dignity: 'Exalted',
+            dignity: 'exalted',
             aspects: []
         },
         saturn: {
@@ -127,7 +127,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: false,
             isCombust: false,
             speed: 0.03,
-            dignity: 'Exalted',
+            dignity: 'exalted',
             aspects: []
         },
         rahu: {
@@ -145,7 +145,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: true,
             isCombust: false,
             speed: -0.05,
-            dignity: 'Neutral',
+            dignity: 'neutral',
             aspects: []
         },
         ketu: {
@@ -163,7 +163,7 @@ describe(AshtakavargaCalculator.name, () => {
             isRetrograde: true,
             isCombust: false,
             speed: -0.05,
-            dignity: 'Neutral',
+            dignity: 'neutral',
             aspects: []
         }
     };

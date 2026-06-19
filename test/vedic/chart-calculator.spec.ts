@@ -219,7 +219,7 @@ describe(VedicAstrologyCalculator.name, () => {
             // Check that all planets have dignity assigned
             Object.values(result.planets).forEach(planet => {
                 expect(planet.dignity).toBeDefined();
-                expect(['Exalted', 'Debilitated', 'Own Sign', 'Neutral']).toContain(planet.dignity);
+                expect(['exalted', 'debilitated', 'own_sign', 'neutral']).toContain(planet.dignity);
             });
         });
 
@@ -299,19 +299,19 @@ describe(VedicAstrologyCalculator.name, () => {
         it('should calculate planetary dignity correctly', async () => {
             // Sun in Aries (exalted)
             const dignity1 = (calculator as any).calculatePlanetaryDignity('sun', 'aries');
-            expect(dignity1).toBe('Exalted');
+            expect(dignity1).toBe('exalted');
             
             // Sun in Libra (debilitated)
             const dignity2 = (calculator as any).calculatePlanetaryDignity('sun', 'libra');
-            expect(dignity2).toBe('Debilitated');
+            expect(dignity2).toBe('debilitated');
             
             // Sun in Leo (own sign)
             const dignity3 = (calculator as any).calculatePlanetaryDignity('sun', 'leo');
-            expect(dignity3).toBe('Own Sign');
+            expect(dignity3).toBe('own_sign');
             
             // Sun in Gemini (neutral)
             const dignity4 = (calculator as any).calculatePlanetaryDignity('sun', 'gemini');
-            expect(dignity4).toBe('Neutral');
+            expect(dignity4).toBe('neutral');
         });
     });
 });

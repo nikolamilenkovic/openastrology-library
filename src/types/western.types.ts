@@ -21,6 +21,8 @@ export type WesternPlanet =
     | 'south_node'
     | 'lilith';
 
+export type WesternDignity = 'exalted' | 'fall' | 'domicile' | 'detriment' | 'neutral';
+
 // All Western aspect types (major + minor)
 export type WesternAspectType =
     | 'conjunction'    // 0°
@@ -104,7 +106,7 @@ export interface WesternPlanetPosition {
     house: HouseNumber;
     isRetrograde: boolean;
     speed: number;              // degrees per day
-    dignity: string;            // Exalted | Debilitated | Domicile | Detriment | Neutral
+    dignity: WesternDignity;    // exalted | fall | domicile | detriment | neutral
     element: 'fire' | 'earth' | 'air' | 'water';
     quality: 'cardinal' | 'fixed' | 'mutable';
     aspects: WesternAspect[];

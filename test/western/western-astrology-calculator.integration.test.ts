@@ -19,7 +19,7 @@ type PlanetExpected = {
     longitude: number;    // absolute tropical longitude 0–360
     house: HouseNumber;
     isRetrograde: boolean;
-    dignity: string;      // 'Exalted' | 'Domicile' | 'Detriment' | 'Fall' | 'Neutral'
+    dignity: string;      // 'exalted' | 'domicile' | 'detriment' | 'fall' | 'neutral'
 };
 
 const si: Record<ZodiacSign, number> = { // for quick sign-to-degree
@@ -62,59 +62,59 @@ const EXPECTED = {
     planets: {
         sun: {
             sign:         'capricorn',   degree: '11:19:59',  longitude: si.capricorn * 30 + dms2deg('11:19:59'),
-            house:        6,  isRetrograde: false,  dignity: 'Neutral'
+            house:        6,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected,
         moon: {
             sign:         'libra',   degree: '07:18:28',  longitude: si.libra * 30 + dms2deg('07:18:28'),
-            house:        3,  isRetrograde: false,  dignity: 'Neutral'
+            house:        3,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected,
         mercury: {
             sign:         'capricorn',   degree: '12:09:09',  longitude: si.capricorn * 30 + dms2deg('12:09:09'),
-            house:        6,  isRetrograde: true,  dignity: 'Neutral'
+            house:        6,  isRetrograde: true,  dignity: 'neutral'
         } as PlanetExpected,
         venus: {
             sign:         'sagittarius',   degree: '19:20:13',  longitude: si.sagittarius * 30 + dms2deg('19:20:13'),
-            house:        5,  isRetrograde: false,  dignity: 'Neutral'
+            house:        5,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected,
         mars: {
             sign:         'virgo',   degree: '29:28:22',  longitude: si.virgo * 30 + dms2deg('29:28:22'),
-            house:        3,  isRetrograde: false,  dignity: 'Neutral'
+            house:        3,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected,
         jupiter: {
             sign:         'capricorn',   degree: '25:20:03',  longitude: si.capricorn * 30 + dms2deg('25:20:03'),
-            house:        6,  isRetrograde: false,  dignity: 'Fall'
+            house:        6,  isRetrograde: false,  dignity: 'fall'
         } as PlanetExpected,
         saturn: {
             sign:         'aries',   degree: '01:22:18',  longitude: si.aries * 30 + dms2deg('01:22:18'),
-            house:        9,  isRetrograde: false,  dignity: 'Fall'
+            house:        9,  isRetrograde: false,  dignity: 'fall'
         } as PlanetExpected,
         uranus: {
             sign:         'aquarius',   degree: '03:18:32',  longitude: si.aquarius * 30 + dms2deg('03:18:32'),
-            house:        6,  isRetrograde: false,  dignity: 'Domicile'
+            house:        6,  isRetrograde: false,  dignity: 'domicile'
         } as PlanetExpected,
         neptune: {
             sign:         'capricorn',   degree: '26:51:16',  longitude: si.capricorn * 30 + dms2deg('26:51:16'),
-            house:        6,  isRetrograde: false,  dignity: 'Neutral'
+            house:        6,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected,
         pluto: {
             sign:         'sagittarius',   degree: '04:24:36',  longitude: si.sagittarius * 30 + dms2deg('04:24:36'),
-            house:        5,  isRetrograde: false,  dignity: 'Neutral'
+            house:        5,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected,
         north_node: {
             sign:         'libra',   degree: '02:26:17',  longitude: si.libra * 30 + dms2deg('02:26:17'),
-            house:        3,  isRetrograde: false,   dignity: 'Neutral'
+            house:        3,  isRetrograde: false,   dignity: 'neutral'
         } as PlanetExpected,
         south_node: {
             sign:         'aries',   degree: '02:26:17',  longitude: si.aries * 30 + dms2deg('02:26:17'),
-            house:        9,  isRetrograde: false,   dignity: 'Neutral'
+            house:        9,  isRetrograde: false,   dignity: 'neutral'
         } as PlanetExpected,
         chiron: {
             sign:         'scorpio',   degree: '00:16:14',  longitude: si.scorpio * 30 + dms2deg('00:16:14'),
-            house:        4,  isRetrograde: false,  dignity: 'Neutral'
+            house:        4,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected,
         lilith: {
             sign:         'leo',   degree: '21:30:19',  longitude: si.leo * 30 + dms2deg('21:30:19'),
-            house:        1,  isRetrograde: false,  dignity: 'Neutral'
+            house:        1,  isRetrograde: false,  dignity: 'neutral'
         } as PlanetExpected
     },
     houses: {
@@ -391,7 +391,7 @@ describe('WesternAstrologyCalculator Integration – Test Person 1', () => {
         });
 
         it('dignity values should be valid', () => {
-            const valid = ['Exalted', 'Domicile', 'Detriment', 'Fall', 'Neutral'];
+            const valid = ['exalted', 'domicile', 'detriment', 'fall', 'neutral'];
             planets.forEach(planet => {
                 expect(valid).toContain(result.planets[planet].dignity);
             });

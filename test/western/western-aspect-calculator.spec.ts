@@ -16,7 +16,7 @@ function makePlanet(name: WesternPlanet, longitude: number, speed = 1): WesternP
         house: 1,
         isRetrograde: speed < 0,
         speed,
-        dignity: 'Neutral',
+        dignity: 'neutral',
         element: ZodiacUtils.getElement(sign),
         quality: ZodiacUtils.getQuality(sign),
         aspects: []

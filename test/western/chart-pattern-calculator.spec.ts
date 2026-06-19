@@ -22,7 +22,7 @@ function makePlanet(
         house: 1,
         isRetrograde: speed < 0,
         speed,
-        dignity: 'Neutral',
+        dignity: 'neutral',
         element: ZodiacUtils.getElement(sign),
         quality: ZodiacUtils.getQuality(sign),
         aspects: []

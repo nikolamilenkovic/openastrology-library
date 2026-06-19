@@ -508,7 +508,7 @@ function createMockPlanetPosition(
         isRetrograde: false,
         isCombust: false,
         speed: 1,
-        dignity: 'Neutral',
+        dignity: 'neutral',
         aspects: []
     };
 }

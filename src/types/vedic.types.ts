@@ -44,6 +44,8 @@ export type Nakshatra =
     | 'uttara_bhadrapada'
     | 'revati';
 
+export type VedicDignity = 'exalted' | 'debilitated' | 'own_sign' | 'neutral';
+
 export type DashaType = 'vimshottari' | 'yogini' | 'char' | 'kalachakra';
 
 export type AspectType = 'conjunction' | 'opposition' | 'trine' | 'square' | 'sextile';
@@ -71,7 +73,7 @@ export interface PlanetPosition {
     isRetrograde: boolean;
     isCombust: boolean; // Whether the planet is combust (close to Sun)
     speed: number; // degrees per day
-    dignity: string; // Exalted, Debilitated, Own Sign, Neutral
+    dignity: VedicDignity;
     aspects: PlanetAspect[]; // Vedic aspects cast by this planet
 }
 

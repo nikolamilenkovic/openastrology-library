@@ -24,7 +24,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 2,
                     isRetrograde: false,
                     isCombust: false,
-                    dignity: 'Own Sign',
+                    dignity: 'own_sign',
                     aspects: []
                 },
                 moon: {
@@ -42,7 +42,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 1,
                     isRetrograde: false,
                     isCombust: false,
-                    dignity: 'Neutral',
+                    dignity: 'neutral',
                     aspects: []
                 },
                 mars: {
@@ -60,7 +60,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 2,
                     isRetrograde: false,
                     isCombust: false,
-                    dignity: 'Neutral',
+                    dignity: 'neutral',
                     aspects: []
                 },
                 mercury: {
@@ -78,7 +78,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 3,
                     isRetrograde: false,
                     isCombust: true, // Mercury close to Sun
-                    dignity: 'Own Sign',
+                    dignity: 'own_sign',
                     aspects: []
                 },
                 jupiter: {
@@ -96,7 +96,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 1,
                     isRetrograde: false,
                     isCombust: false,
-                    dignity: 'Exalted',
+                    dignity: 'exalted',
                     aspects: []
                 },
                 venus: {
@@ -114,7 +114,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 3,
                     isRetrograde: false,
                     isCombust: false,
-                    dignity: 'Own Sign',
+                    dignity: 'own_sign',
                     aspects: []
                 },
                 saturn: {
@@ -132,7 +132,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 2,
                     isRetrograde: false,
                     isCombust: false,
-                    dignity: 'Own Sign',
+                    dignity: 'own_sign',
                     aspects: []
                 },
                 rahu: {
@@ -150,7 +150,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 2,
                     isRetrograde: true,
                     isCombust: false, // Rahu not traditionally combust
-                    dignity: 'Neutral',
+                    dignity: 'neutral',
                     aspects: []
                 },
                 ketu: {
@@ -168,7 +168,7 @@ describe(DivisionalChartCalculator.name, () => {
                     pada: 2,
                     isRetrograde: true,
                     isCombust: false, // Ketu not traditionally combust
-                    dignity: 'Neutral',
+                    dignity: 'neutral',
                     aspects: []
                 }
             },

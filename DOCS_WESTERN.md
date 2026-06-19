@@ -340,7 +340,7 @@ interface WesternPlanetPosition {
   house: HouseNumber;
   isRetrograde: boolean;
   speed: number;              // degrees per day (negative = retrograde)
-  dignity: 'Exalted' | 'Domicile' | 'Detriment' | 'Fall' | 'Neutral';
+  dignity: WesternDignity; // 'exalted' | 'domicile' | 'detriment' | 'fall' | 'neutral'
   element: 'fire' | 'earth' | 'air' | 'water';
   quality: 'cardinal' | 'fixed' | 'mutable';
   aspects: WesternAspect[];   // aspects this planet participates in

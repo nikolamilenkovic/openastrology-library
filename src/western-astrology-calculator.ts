@@ -4,7 +4,7 @@ import { ChartPatternCalculator } from './chart-pattern-calculator';
 import { WesternAspectCalculator } from './western-aspect-calculator';
 import { ZodiacSign, HouseNumber, HouseInfo } from './types/common.types';
 import { ZodiacUtils, HouseUtils, FormattingUtils } from './astrological-utils';
-import { BirthInfo, WesternChartCalculations, WesternPlanetPosition, WesternPlanet, WesternAspect, WesternAspectType, WesternAstrologyCalculatorOptions, ChartPattern } from './types/western.types';
+import { BirthInfo, WesternChartCalculations, WesternPlanetPosition, WesternPlanet, WesternAspect, WesternAspectType, WesternAstrologyCalculatorOptions, ChartPattern, WesternDignity } from './types/western.types';
 
 export { WesternAstrologyCalculatorOptions };
 
@@ -395,12 +395,12 @@ export class WesternAstrologyCalculator {
         return 1;
     }
 
-    private calculateDignity(planet: WesternPlanet, sign: ZodiacSign): string {
-        if (WesternAstrologyCalculator.EXALTATION[planet] === sign) return 'Exalted';
-        if (WesternAstrologyCalculator.FALL[planet] === sign) return 'Fall';
-        if (WesternAstrologyCalculator.DOMICILE[planet]?.includes(sign)) return 'Domicile';
-        if (WesternAstrologyCalculator.DETRIMENT[planet]?.includes(sign)) return 'Detriment';
-        return 'Neutral';
+    private calculateDignity(planet: WesternPlanet, sign: ZodiacSign): WesternDignity {
+        if (WesternAstrologyCalculator.EXALTATION[planet] === sign) return 'exalted';
+        if (WesternAstrologyCalculator.FALL[planet] === sign) return 'fall';
+        if (WesternAstrologyCalculator.DOMICILE[planet]?.includes(sign)) return 'domicile';
+        if (WesternAstrologyCalculator.DETRIMENT[planet]?.includes(sign)) return 'detriment';
+        return 'neutral';
     }
 
     private calculateHouseStrength(houseNumber: HouseNumber): number {
