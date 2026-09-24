@@ -438,7 +438,7 @@ describe('AspectCalculator', () => {
             const description = AspectCalculator.getAspectDescription(planet, aspects);
 
             // Assert
-            expect(description).toBe('Mars aspects: 4th house (affecting Mercury), 7th house (affecting Jupiter), 8th house (affecting Venus, Saturn)');
+            expect(description).toBe('Mars aspects: 6th house (affecting Mercury), 9th house (affecting Jupiter), 10th house (affecting Venus, Saturn)');
         });
 
         it('should return correct description for planet with aspects to empty houses', () => {
@@ -468,7 +468,7 @@ describe('AspectCalculator', () => {
             const description = AspectCalculator.getAspectDescription(planet, aspects);
 
             // Assert
-            expect(description).toBe('Jupiter aspects: 5th house (affecting Venus), 7th house (empty house), 9th house (affecting Sun, Moon)');
+            expect(description).toBe('Jupiter aspects: 9th house (affecting Venus), 11th house (empty house), 1th house (affecting Sun, Moon)');
         });
 
         it('should return correct description for planet with no aspects', () => {

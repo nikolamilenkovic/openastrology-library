@@ -158,6 +158,10 @@ See [LICENSING.md](LICENSING.md) for detailed information.
 
 ## Changelog
 
+### 1.1.2
+#### Bug Fixes
+- Fixed `AspectCalculator.getAspectDescription` labeling special Vedic aspects (Mars 4th/8th, Jupiter/Rahu/Ketu 5th/9th, Saturn 3rd/10th) with the raw aspect offset instead of the resolved absolute house number, producing incorrect house labels in D1 and all divisional charts
+
 ### 1.1.1
 #### Types
 - Added `VedicDignity` type (`'exalted' | 'debilitated' | 'own_sign' | 'neutral'`) - replaces the untyped `string` on `PlanetPosition.dignity`

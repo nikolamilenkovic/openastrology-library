@@ -96,7 +96,7 @@ export class AspectCalculator {
             const planetsStr = aspect.planets.length > 0 ? 
                 ` (affecting ${aspect.planets.map(titleCase).join(', ')})` : 
                 ' (empty house)';
-            return `${aspect.aspect}th house${planetsStr}`;
+            return `${aspect.house}th house${planetsStr}`;
         }).join(', ');
 
         return `${titleCase(planet)} aspects: ${aspectList}`;
